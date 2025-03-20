@@ -1,4 +1,4 @@
-from constants import LARANJA, VERDE, TAMANHO_QUADRADO, LARANJA_ESCURO
+from .constants import LARANJA, VERDE, TAMANHO_QUADRADO, LARANJA_ESCURO
 import pygame
 
 class Peças:
@@ -11,7 +11,7 @@ class Peças:
         self.cor = cor
         self.king = False
 
-        if self.color == LARANJA:
+        if self.cor == LARANJA:
             self.direções = -1
         else:
             self.direções = 1
@@ -30,7 +30,7 @@ class Peças:
     def draw(self, win):
         raio = TAMANHO_QUADRADO // 2 - self.ESPAÇO
         pygame.draw.circle(win, LARANJA_ESCURO, (self.x, self.y), raio + self.BORDA)
-        pygame.draw.circle(win, self.color, (self.x, self.y), raio)
+        pygame.draw.circle(win, self.cor, (self.x, self.y), raio)
 
     def __repr__(self):
-        return str(self.color)
+        return str(self.cor)
