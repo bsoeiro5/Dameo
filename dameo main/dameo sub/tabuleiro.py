@@ -1,5 +1,5 @@
 import pygame
-from constants import CINZA, LINHAS, BRANCO
+from .constants import CINZA, LINHAS, BRANCO ,TAMANHO_QUADRADO
 
 class Tabuleiro:
     def __init__(self):
@@ -11,8 +11,5 @@ class Tabuleiro:
     def draw_quadrados(self,win):
         win.fill(CINZA)
         for  LINHA in range(LINHAS):
-            for COLUNA in range(LINHAS):
-                if LINHA % 2 == 0 and COLUNA % 2 != 0:
-                    pygame.draw.rect(win, BRANCO, (LINHA*100, COLUNA*100, 100, 100))
-                elif LINHA % 2 != 0 and COLUNA % 2 == 0:
-                    pygame.draw.rect(win, BRANCO, (LINHA*100, COLUNA*100, 100, 100))
+            for COLUNA in range(LINHA%2, LINHAS, 2):
+                pygame.draw.rect(win, BRANCO, (LINHA*TAMANHO_QUADRADO, COLUNA*TAMANHO_QUADRADO, TAMANHO_QUADRADO, TAMANHO_QUADRADO))
