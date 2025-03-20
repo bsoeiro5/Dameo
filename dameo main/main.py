@@ -1,6 +1,6 @@
 import pygame
-from dameo.constants import LARGURA, ALTURA
-from dameo.tabuleiro import Tabuleiro
+from dameo_sub.constants import LARGURA, ALTURA
+from dameo_sub.tabuleiro import Tabuleiro
 
 WIN = pygame.display.set_mode((LARGURA,ALTURA))   #medidas da janela incial
 pygame.display.set_caption('Dameo')
