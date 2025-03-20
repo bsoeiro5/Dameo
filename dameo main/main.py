@@ -21,7 +21,7 @@ def main():             #função para correr o jogo
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pass    
     
-        tabuleiro.draw_quadrados(WIN)
+        tabuleiro.desenhar(WIN)
         pygame.display.update()
 
     pygame.quit()
