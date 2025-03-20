@@ -18,21 +18,30 @@ class Tabuleiro:
 
     def create_tabuleiro(self):
         for LINHA in range(LINHAS):
-            self.board.append([]) #cria uma linha a cada iteraçao (lista vazia)
+            self.board.append([])  # Cria uma linha (lista vazia)
             for COLUNA in range(COLUNAS):
-                if LINHA < 3:
-                    if (LINHA == 0) or (LINHA == 1 and 1 <= COLUNA <= TAMANHO_QUADRADO-1) or (LINHA == 2 and 2 <= COLUNA <= TAMANHO_QUADRADO-2):
-                        self.board[LINHA].append(Peças(LINHA,COLUNA,VERDE))  # V for Verdes
-                    else:
-                        self.board[LINHA].append(0)
-                elif LINHA > 4:
-                    if (LINHA == TAMANHO_QUADRADO-1) or (LINHA == TAMANHO_QUADRADO-2 and 1 <= COLUNA <= TAMANHO_QUADRADO-2) or (LINHA == TAMANHO_QUADRADO-3 and 2 <= COLUNA <= TAMANHO_QUADRADO-3):
-                        self.board[LINHA].append(Peças(LINHA,COLUNA,LARANJA))  # L for Laranjas
-                    else:
-                        self.board[LINHA].append(0)
+                # Primeira linha: todas as colunas preenchidas
+                if LINHA == 0:
+                    self.board[LINHA].append(Peças(LINHA, COLUNA, VERDE))
+                # Segunda linha: n-1 peças
+                elif LINHA == 1 and 0 < COLUNA < COLUNAS - 1:
+                    self.board[LINHA].append(Peças(LINHA, COLUNA, VERDE))
+                # Terceira linha: n-2 peças
+                elif LINHA == 2 and 1 < COLUNA < COLUNAS - 2:
+                    self.board[LINHA].append(Peças(LINHA, COLUNA, VERDE))
+                # Antepenúltima linha: n-2 peças
+                elif LINHA == LINHAS - 3 and 1 < COLUNA < COLUNAS - 2:
+                    self.board[LINHA].append(Peças(LINHA, COLUNA, LARANJA))
+                # Penúltima linha: n-1 peças
+                elif LINHA == LINHAS - 2 and 0 < COLUNA < COLUNAS - 1:
+                    self.board[LINHA].append(Peças(LINHA, COLUNA, LARANJA))
+                # Última linha: todas as colunas preenchidas
+                elif LINHA == LINHAS - 1:
+                    self.board[LINHA].append(Peças(LINHA, COLUNA, LARANJA))
                 else:
-                    self.board[LINHA].append(0)
-    
+                    self.board[LINHA].append(0)  # Espaço vazio
+
+
     def desenhar(self,win): 
         self.draw_quadrados(win)
         for LINHA in range(LINHAS):
