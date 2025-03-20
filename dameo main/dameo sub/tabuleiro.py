@@ -1,5 +1,5 @@
 import pygame
-from dameo_sub.constants import CINZA, LINHAS, BRANCO ,TAMANHO_QUADRADO, COLUNAS, LARANJA, VERDE
+from .constants import CINZA, LINHAS, BRANCO ,TAMANHO_QUADRADO, COLUNAS, LARANJA, VERDE
 from .peças import Peças
 
 class Tabuleiro:
@@ -33,10 +33,10 @@ class Tabuleiro:
                 else:
                     self.board[LINHA].append(0)
     
-    def desenhar(self,win):
+    def desenhar(self,win): 
         self.draw_quadrados(win)
         for LINHA in range(LINHAS):
             for COLUNA in range(COLUNAS):
-                peça = self.board[LINHA][COLUNA]
-                if peça != 0:
-                    peça.draw(win)
+                peças = self.board[LINHA][COLUNA]
+                if peças != 0:
+                    peças.draw(win)
