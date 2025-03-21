@@ -35,6 +35,8 @@ class Peças:
         raio = TAMANHO_QUADRADO // 2 - self.ESPAÇO
         pygame.draw.circle(win, self.corsecundaria, (self.x, self.y), raio + self.BORDA)
         pygame.draw.circle(win, self.cor, (self.x, self.y), raio)
+        pygame.draw.circle(win, self.corsecundaria, (self.x, self.y), raio - 5)
+        pygame.draw.circle(win, self.cor, (self.x, self.y), raio - 7)
 
     def __repr__(self):
         return str(self.cor)
