@@ -28,7 +28,8 @@ def main():             #função para correr o jogo
                 
                 pos = pygame.mouse.get_pos()
                 linha, coluna = get_row_col_from_mouse(pos)
-                peça = tabuleiro.get_piece(linha, coluna)  
+                peça = tabuleiro.get_peça(linha, coluna)
+                tabuleiro.movimento(peça, 4,3)
     
         tabuleiro.desenhar(WIN)
         pygame.display.update()
