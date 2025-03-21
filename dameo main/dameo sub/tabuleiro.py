@@ -15,6 +15,19 @@ class Tabuleiro:
         for  LINHA in range(LINHAS):
             for COLUNA in range(LINHA%2, COLUNAS, 2):
                 pygame.draw.rect(win, BRANCO, (LINHA*TAMANHO_QUADRADO, COLUNA*TAMANHO_QUADRADO, TAMANHO_QUADRADO, TAMANHO_QUADRADO))
+    def movimento(self,peça,linha,coluna):
+        self.board[peça.linha][peça.coluna], self.board[linha][coluna] = self.board[linha][coluna], self.board[peça.linha][peça.coluna]
+        peça.movimento(linha,coluna)
+
+        if linha == LINHAS or linha == 0:
+            peça.make_king()
+            if peça.cor == VERDE:
+                self.verdes_kings += 1
+            else:
+                self.laranjas_kings += 1
+
+    def get_peça(self,linha,coluna):
+        return self.board[linha][coluna]
 
     def create_tabuleiro(self):
     # Definir o número de linhas com peças baseado no tamanho do tabuleiro
