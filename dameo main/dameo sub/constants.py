@@ -20,3 +20,5 @@ CASTANHO = (139, 69, 19)
 ROXO = (128, 0, 128)
 LARANJA_ESCURO = (255, 140, 0)
 VERDE_ESCURO = (0, 100, 0)
+
+coroa = pygame.transform.scale(pygame.image.load('assets/crown.png'), (44, 25))
