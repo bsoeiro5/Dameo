@@ -12,6 +12,10 @@ class Game:
         self.tabuleiro = Tabuleiro()
         self.turn = VERDE
         self.valid_moves = {}
+    
+    def update(self):
+        self.tabuleiro.desenhar(self.win)
+        pygame.display.update()
 
     def reset(self):
         self._init()
@@ -40,3 +44,9 @@ class Game:
             return False
 
         return True
+    
+    def change_turn(self):
+        if self.turn == VERDE:
+            self.turn = LARANJA
+        else:
+            self.turn = VERDE
