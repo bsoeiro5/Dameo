@@ -5,7 +5,6 @@ from .peças import Peças
 class Tabuleiro:
     def __init__(self):
         self.board = []
-        self.selected_piece = None
         self.verdes_left = self.laranjas_left = 18
         self.verdes_kings = self.laranjas_kings = 0
         self.create_tabuleiro()
