@@ -1,6 +1,7 @@
 import pygame
 from dameo_sub.constants import LARGURA, ALTURA, TAMANHO_QUADRADO
 from dameo_sub.tabuleiro import Tabuleiro
+from dameo_sub.game import Game
 
 WIN = pygame.display.set_mode((LARGURA,ALTURA))   #medidas da janela incial
 pygame.display.set_caption('Dameo')
@@ -15,7 +16,8 @@ def get_row_col_from_mouse(pos):
 def main():             #função para correr o jogo
     run = True 
     clock = pygame.time.Clock()
-    tabuleiro = Tabuleiro()
+    game = Game(WIN)
+    
 
     while run:
         clock.tick(60)  #60 FPS
@@ -28,11 +30,8 @@ def main():             #função para correr o jogo
                 
                 pos = pygame.mouse.get_pos()
                 linha, coluna = get_row_col_from_mouse(pos)
-                peça = tabuleiro.get_peça(linha, coluna)
-                tabuleiro.movimento(peça, 4,3)
-    
-        tabuleiro.desenhar(WIN)
-        pygame.display.update()
+                
+        game.update()
 
     pygame.quit()
 
