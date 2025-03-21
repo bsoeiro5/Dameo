@@ -1,5 +1,5 @@
 import pygame
-from .constants import CINZA, LINHAS, BRANCO ,TAMANHO_QUADRADO, COLUNAS, LARANJA, VERDE
+from .constants import CINZA, LINHAS, BRANCO ,TAMANHO_QUADRADO, COLUNAS, LARANJA, VERDE, PRETO, ALTURA
 from .peças import Peças
 
 class Tabuleiro:
