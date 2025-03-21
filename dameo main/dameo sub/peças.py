@@ -47,3 +47,7 @@ class Peças:
     
     def __repr__(self):
         return str(self.cor)
+        self.calc_pos()
+    
+    def __repr__(self):
+        return str(self.cor)
