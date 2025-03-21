@@ -17,9 +17,6 @@ def main():             #função para correr o jogo
     clock = pygame.time.Clock()
     tabuleiro = Tabuleiro()
 
-    peça = tabuleiro.get_peça(0,1)
-    tabuleiro.movimento(peça, 4,3)
-
     while run:
         clock.tick(60)  #60 FPS
         
