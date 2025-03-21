@@ -39,6 +39,11 @@ class Peças:
         pygame.draw.circle(win, self.cor, (self.x, self.y), raio - 7)
         if self.king:
             win.blit(coroa, (self.x - coroa.get_width() // 2, self.y - coroa.get_height() // 2))
-
+    
+    def movimento(self,linha,coluna):
+        self.linha = linha
+        self.coluna = coluna
+        self.calc_pos()
+    
     def __repr__(self):
         return str(self.cor)
