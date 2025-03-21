@@ -1,4 +1,4 @@
-from .constants import LARANJA, VERDE, TAMANHO_QUADRADO, LARANJA_ESCURO, PRETO, VERDE_ESCURO
+from .constants import LARANJA, VERDE, TAMANHO_QUADRADO, LARANJA_ESCURO, PRETO, VERDE_ESCURO, coroa
 import pygame
 
 class Peças:
@@ -37,6 +37,8 @@ class Peças:
         pygame.draw.circle(win, self.cor, (self.x, self.y), raio)
         pygame.draw.circle(win, self.corsecundaria, (self.x, self.y), raio - 5)
         pygame.draw.circle(win, self.cor, (self.x, self.y), raio - 7)
+        if self.king:
+            win.blit(coroa, (self.x - coroa.get_width() // 2, self.y - coroa.get_height() // 2))
 
     def __repr__(self):
         return str(self.cor)
