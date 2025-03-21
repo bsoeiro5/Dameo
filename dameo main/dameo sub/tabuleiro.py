@@ -15,6 +15,13 @@ class Tabuleiro:
         for  LINHA in range(LINHAS):
             for COLUNA in range(LINHA%2, COLUNAS, 2):
                 pygame.draw.rect(win, BRANCO, (LINHA*TAMANHO_QUADRADO, COLUNA*TAMANHO_QUADRADO, TAMANHO_QUADRADO, TAMANHO_QUADRADO))
+
+    def draw_bordas(self,win):
+        for LINHA in range(LINHAS):
+            pygame.draw.line(win, PRETO, (0, LINHA * TAMANHO_QUADRADO), (ALTURA, LINHA * TAMANHO_QUADRADO), 2)
+            for COLUNA in range(COLUNAS):
+                pygame.draw.line(win, PRETO, (COLUNA * TAMANHO_QUADRADO, 0), (COLUNA * TAMANHO_QUADRADO, ALTURA), 2)
+                
     def movimento(self,peça,linha,coluna):
         self.board[peça.linha][peça.coluna], self.board[linha][coluna] = self.board[linha][coluna], self.board[peça.linha][peça.coluna]
         peça.movimento(linha,coluna)
@@ -61,3 +68,4 @@ class Tabuleiro:
                 peças = self.board[LINHA][COLUNA]
                 if peças != 0:
                     peças.draw(win)
+        self.draw_bordas(win)
