@@ -17,29 +17,28 @@ class Tabuleiro:
                 pygame.draw.rect(win, BRANCO, (LINHA*TAMANHO_QUADRADO, COLUNA*TAMANHO_QUADRADO, TAMANHO_QUADRADO, TAMANHO_QUADRADO))
 
     def create_tabuleiro(self):
+    # Definir o número de linhas com peças baseado no tamanho do tabuleiro
+        if LINHAS == 6:
+            linhas_com_peças = 2
+        elif LINHAS == 8:
+            linhas_com_peças = 3
+        elif LINHAS == 12:
+            linhas_com_peças = 4
+        else:
+            raise ValueError("Tamanho do tabuleiro não suportado. Use 6x6, 8x8 ou 12x12.")
+
         for LINHA in range(LINHAS):
             self.board.append([])  # Cria uma linha (lista vazia)
             for COLUNA in range(COLUNAS):
-                # Primeira linha: todas as colunas preenchidas
-                if LINHA == 0:
+                # Linhas do topo (peças verdes)
+                if LINHA < linhas_com_peças and COLUNA >= LINHA and COLUNA < COLUNAS - LINHA:
                     self.board[LINHA].append(Peças(LINHA, COLUNA, VERDE))
-                # Segunda linha: n-1 peças
-                elif LINHA == 1 and 0 < COLUNA < COLUNAS - 1:
-                    self.board[LINHA].append(Peças(LINHA, COLUNA, VERDE))
-                # Terceira linha: n-2 peças
-                elif LINHA == 2 and 1 < COLUNA < COLUNAS - 2:
-                    self.board[LINHA].append(Peças(LINHA, COLUNA, VERDE))
-                # Antepenúltima linha: n-2 peças
-                elif LINHA == LINHAS - 3 and 1 < COLUNA < COLUNAS - 2:
-                    self.board[LINHA].append(Peças(LINHA, COLUNA, LARANJA))
-                # Penúltima linha: n-1 peças
-                elif LINHA == LINHAS - 2 and 0 < COLUNA < COLUNAS - 1:
-                    self.board[LINHA].append(Peças(LINHA, COLUNA, LARANJA))
-                # Última linha: todas as colunas preenchidas
-                elif LINHA == LINHAS - 1:
+                    # Linhas da base (peças laranjas)
+                elif LINHA >= LINHAS - linhas_com_peças and COLUNA >= (LINHAS - 1 - LINHA) and COLUNA < COLUNAS - (LINHAS - 1 - LINHA):
                     self.board[LINHA].append(Peças(LINHA, COLUNA, LARANJA))
                 else:
                     self.board[LINHA].append(0)  # Espaço vazio
+
 
 
     def desenhar(self,win): 
