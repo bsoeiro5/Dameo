@@ -1,14 +1,18 @@
-from .constants import LARANJA, VERDE, TAMANHO_QUADRADO, LARANJA_ESCURO, PRETO
+from .constants import LARANJA, VERDE, TAMANHO_QUADRADO, LARANJA_ESCURO, PRETO, VERDE_ESCURO
 import pygame
 
 class Peças:
     ESPAÇO = 10
-    BORDA = 2
+    BORDA = 3
 
     def __init__(self, linha, coluna, cor):
         self.linha = linha
         self.coluna = coluna
         self.cor = cor
+        if self.cor == VERDE:
+            self.corsecundaria = VERDE_ESCURO
+        else:
+            self.corsecundaria = LARANJA_ESCURO
         self.king = False
 
         if self.cor == LARANJA:
@@ -29,7 +33,7 @@ class Peças:
 
     def draw(self, win):
         raio = TAMANHO_QUADRADO // 2 - self.ESPAÇO
-        pygame.draw.circle(win, PRETO, (self.x, self.y), raio + self.BORDA)
+        pygame.draw.circle(win, self.corsecundaria, (self.x, self.y), raio + self.BORDA)
         pygame.draw.circle(win, self.cor, (self.x, self.y), raio)
 
     def __repr__(self):
