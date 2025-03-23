@@ -84,8 +84,6 @@ class Tabuleiro:
             return LARANJA
         return None
     
-
-
     def get_valid_moves(self, peça):
         movimentos = {}
         esquerda = peça.coluna - 1
@@ -95,12 +93,15 @@ class Tabuleiro:
         if peça.cor == LARANJA or peça.king:
             movimentos.update(self._traverse_left(linha -1, max(linha-3, -1), -1, peça.cor, esquerda))
             movimentos.update(self._traverse_right(linha -1, max(linha-3, -1), -1, peça.cor, direita))
+            movimentos.update(self._traverse_vertical(linha - 1, max(linha-3, -1), -1, peça.cor, peça.coluna))
 
         if peça.cor == VERDE or peça.king:
             movimentos.update(self._traverse_left(linha +1, min(linha+3, LINHAS), 1, peça.cor, esquerda))
             movimentos.update(self._traverse_right(linha +1, min(linha+3, LINHAS), 1, peça.cor, direita))
+            movimentos.update(self._traverse_vertical(linha + 1, min(linha+3, LINHAS), 1, peça.cor, peça.coluna))
 
         return movimentos
+
     def _traverse_left(self, start, stop, step, cor, left, skipped=[]):
         movimentos = {}
         last = []  # Lista de peças que foram saltadas
@@ -128,8 +129,8 @@ class Tabuleiro:
             else:
                 last = [current]
             left -= 1
-            
         return movimentos
+
     def _traverse_right(self, start, stop, step, cor, right, skipped=[]):
         movimentos = {}
         last = []  # Lista de peças que foram saltadas
@@ -157,4 +158,30 @@ class Tabuleiro:
             else:
                 last = [current]
             right += 1
+        return movimentos
+
+    def _traverse_vertical(self, start, stop, step, cor, coluna, skipped=[]):
+        movimentos = {}
+        last = []  # Lista de peças que foram saltadas
+        for r in range(start, stop, step):
+            current = self.board[r][coluna]
+            if current == 0:
+                if skipped and not last:
+                    break
+                elif skipped:
+                    movimentos[(r, coluna)] = last + skipped
+                else:
+                    movimentos[(r, coluna)] = last
+                if last:
+                    if step == -1:
+                        row = max(r-3,0)
+                    else:
+                        row = min(r+3,LINHAS)
+                    movimentos.update(self._traverse_left(r+step, row, step, cor, coluna-1, skipped=last))
+                    movimentos.update(self._traverse_right(r+step, row, step, cor, coluna+1, skipped=last))
+                break
+            elif current.cor == cor:
+                break
+            else:
+                last = [current]
         return movimentos
