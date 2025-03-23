@@ -20,22 +20,27 @@ def main():             #função para correr o jogo
     
 
     while run:
-        clock.tick(60)  #60 FPS
-        if game.winner() != None:  #se houver um vencedor
+        clock.tick(60)  # 60 FPS
+        if game.winner() != None:  # se houver um vencedor
             print(game.winner())
             run = False
         
-        for event in pygame.event.get():        #para fechar a janela
-            if event.type == pygame.QUIT:
-                run = False
-            
-            if event.type == pygame.MOUSEBUTTONDOWN:
+        for event in pygame.event.get():  # para fechar a janela
+            try:
+                if event.type == pygame.QUIT:
+                    run = False
                 
-                pos = pygame.mouse.get_pos()
-                linha, coluna = get_row_col_from_mouse(pos)
-               
-                game.select(linha, coluna)
-        game.update()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    pos = pygame.mouse.get_pos()
+                    linha, coluna = get_row_col_from_mouse(pos)
+                    game.select(linha, coluna)
+            except Exception as e:
+                print(f"Erro ao processar evento: {e}")
+        
+        try:
+            game.update()
+        except Exception as e:
+            print(f"Erro ao atualizar o jogo: {e}")
 
     pygame.quit()
 
