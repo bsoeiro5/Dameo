@@ -104,10 +104,12 @@ class Tabuleiro:
 
     def _traverse_left(self, start, stop, step, cor, left, skipped=[]):
         movimentos = {}
-        last = []  # Lista de peças que foram saltadas
+        last = []
+
         for r in range(start, stop, step):
             if left < 0:
                 break
+
             current = self.board[r][left]
             if current == 0:
                 if skipped and not last:
@@ -116,27 +118,31 @@ class Tabuleiro:
                     movimentos[(r, left)] = last + skipped
                 else:
                     movimentos[(r, left)] = last
+
                 if last:
                     if step == -1:
-                        row = max(r-3,0)
+                        row = max(r - 1, 0)
                     else:
-                        row = min(r+3,LINHAS)
-                    movimentos.update(self._traverse_left(r+step, row, step, cor, left-1, skipped=last))
-                    movimentos.update(self._traverse_right(r+step, row, step, cor, left+1, skipped=last))
+                        row = min(r + 1, LINHAS)
+                    movimentos.update(self._traverse_left(r + step, row, step, cor, left - 1, skipped=last))
+                    movimentos.update(self._traverse_right(r + step, row, step, cor, left + 1, skipped=last))
                 break
             elif current.cor == cor:
-                break
-            else:
                 last = [current]
+            else:
+                break
+
             left -= 1
         return movimentos
 
     def _traverse_right(self, start, stop, step, cor, right, skipped=[]):
         movimentos = {}
-        last = []  # Lista de peças que foram saltadas
+        last = []
+
         for r in range(start, stop, step):
             if right >= COLUNAS:
                 break
+
             current = self.board[r][right]
             if current == 0:
                 if skipped and not last:
@@ -145,24 +151,27 @@ class Tabuleiro:
                     movimentos[(r, right)] = last + skipped
                 else:
                     movimentos[(r, right)] = last
+
                 if last:
                     if step == -1:
-                        row = max(r-3,0)
+                        row = max(r - 1, 0)
                     else:
-                        row = min(r+3,LINHAS)
-                    movimentos.update(self._traverse_left(r+step, row, step, cor, right-1, skipped=last))
-                    movimentos.update(self._traverse_right(r+step, row, step, cor, right+1, skipped=last))
+                        row = min(r + 1, LINHAS)
+                    movimentos.update(self._traverse_left(r + step, row, step, cor, right - 1, skipped=last))
+                    movimentos.update(self._traverse_right(r + step, row, step, cor, right + 1, skipped=last))
                 break
             elif current.cor == cor:
-                break
-            else:
                 last = [current]
+            else:
+                break
+
             right += 1
         return movimentos
 
     def _traverse_vertical(self, start, stop, step, cor, coluna, skipped=[]):
         movimentos = {}
         last = []  # Lista de peças que foram saltadas
+
         for r in range(start, stop, step):
             current = self.board[r][coluna]
             if current == 0:
@@ -181,7 +190,7 @@ class Tabuleiro:
                     movimentos.update(self._traverse_right(r+step, row, step, cor, coluna+1, skipped=last))
                 break
             elif current.cor == cor:
-                break
+                    last = []
             else:
                 last = [current]
         return movimentos
