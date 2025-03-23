@@ -111,11 +111,9 @@ class Tabuleiro:
                 break
 
             current = self.board[r][left]
-            if current == 0:
-                if skipped and not last:
-                    break
-                elif skipped:
-                    movimentos[(r, left)] = last + skipped
+            if current == 0:  # Casa vazia
+                if skipped:
+                    movimentos[(r, left)] = skipped
                 else:
                     movimentos[(r, left)] = last
 
@@ -124,16 +122,21 @@ class Tabuleiro:
                         row = max(r - 1, 0)
                     else:
                         row = min(r + 1, LINHAS)
-                    movimentos.update(self._traverse_left(r + step, row, step, cor, left - 1, skipped=last))
-                    movimentos.update(self._traverse_right(r + step, row, step, cor, left + 1, skipped=last))
+                    movimentos.update(self._traverse_left(r + step, row, step, cor, left - 1, skipped=skipped))
+                    movimentos.update(self._traverse_right(r + step, row, step, cor, left + 1, skipped=skipped))
                 break
-            elif current.cor == cor:
-                last = [current]
-            else:
+
+            elif current.cor == cor:  # Se for peça da mesma cor, apenas continua
+                left -= 1
+                continue
+
+            else:  # Peça do adversário (BLOQUEIA O MOVIMENTO)
                 break
 
             left -= 1
+
         return movimentos
+
 
     def _traverse_right(self, start, stop, step, cor, right, skipped=[]):
         movimentos = {}
@@ -144,11 +147,9 @@ class Tabuleiro:
                 break
 
             current = self.board[r][right]
-            if current == 0:
-                if skipped and not last:
-                    break
-                elif skipped:
-                    movimentos[(r, right)] = last + skipped
+            if current == 0:  # Casa vazia
+                if skipped:
+                    movimentos[(r, right)] = skipped
                 else:
                     movimentos[(r, right)] = last
 
@@ -157,40 +158,51 @@ class Tabuleiro:
                         row = max(r - 1, 0)
                     else:
                         row = min(r + 1, LINHAS)
-                    movimentos.update(self._traverse_left(r + step, row, step, cor, right - 1, skipped=last))
-                    movimentos.update(self._traverse_right(r + step, row, step, cor, right + 1, skipped=last))
+                    movimentos.update(self._traverse_left(r + step, row, step, cor, right - 1, skipped=skipped))
+                    movimentos.update(self._traverse_right(r + step, row, step, cor, right + 1, skipped=skipped))
                 break
-            elif current.cor == cor:
-                last = [current]
-            else:
+
+            elif current.cor == cor:  # Se for peça da mesma cor, apenas continua
+                right += 1
+                continue
+
+            else:  # Peça do adversário (BLOQUEIA O MOVIMENTO)
                 break
 
             right += 1
+
         return movimentos
 
     def _traverse_vertical(self, start, stop, step, cor, coluna, skipped=[]):
         movimentos = {}
-        last = []  # Lista de peças que foram saltadas
+        last = []  # Peças que podem ser capturadas
 
         for r in range(start, stop, step):
             current = self.board[r][coluna]
-            if current == 0:
-                if skipped and not last:
-                    break
-                elif skipped:
-                    movimentos[(r, coluna)] = last + skipped
+
+            if current == 0:  # Casa vazia
+                if skipped:
+                    movimentos[(r, coluna)] = skipped
                 else:
                     movimentos[(r, coluna)] = last
+
                 if last:
                     if step == -1:
-                        row = max(r-3,0)
+                        row = max(r - 1, 0)
                     else:
-                        row = min(r+3,LINHAS)
-                    movimentos.update(self._traverse_left(r+step, row, step, cor, coluna-1, skipped=last))
-                    movimentos.update(self._traverse_right(r+step, row, step, cor, coluna+1, skipped=last))
+                        row = min(r + 1, LINHAS)
+
+                    movimentos.update(self._traverse_left(r + step, row, step, cor, coluna - 1, skipped=skipped))
+                    movimentos.update(self._traverse_right(r + step, row, step, cor, coluna + 1, skipped=skipped))
                 break
-            elif current.cor == cor:
-                    last = []
-            else:
-                last = [current]
+
+            elif current.cor == cor:  # Peça da mesma cor -> permite ultrapassar
+                continue
+
+            else:  # Peça adversária
+                if last:  # Já encontrou uma peça adversária antes? Bloqueia o movimento
+                    break
+                else:
+                    last.append(current)  # Marca para possível captura
+
         return movimentos
