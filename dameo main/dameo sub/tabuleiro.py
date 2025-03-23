@@ -206,3 +206,36 @@ class Tabuleiro:
                     last.append(current)  # Marca para possível captura
 
         return movimentos
+    
+
+    def _traverse_horizontal(self, start, stop, step, cor, linha, skipped=[]):
+        movimentos = {}
+        last = []  # Peças que podem ser capturadas
+
+        for c in range(start, stop, step):
+            if not 0 <= c < COLUNAS:  # Verificar se está dentro dos limites do tabuleiro
+                break
+
+            current = self.board[linha][c]
+
+            if current == 0:  # Casa vazia
+                if skipped:
+                    movimentos[(linha, c)] = skipped
+                else:
+                    movimentos[(linha, c)] = last
+
+                # Se já encontrou uma peça adversária (captura), deve continuar para a próxima casa
+                if last:
+                    movimentos.update(self._traverse_horizontal(c + step, stop, step, cor, linha, skipped=skipped))
+                break
+
+            elif current.cor == cor:  # Peça da mesma cor -> bloqueia o movimento
+                break
+
+            else:  # Peça adversária
+                if last:  # Se já encontrou uma peça adversária antes, a captura está bloqueada
+                    break
+                else:
+                    last.append(current)  # Marca a peça adversária como capturada
+
+        return movimentos
