@@ -25,7 +25,7 @@ class Tabuleiro:
         self.board[peça.linha][peça.coluna], self.board[linha][coluna] = self.board[linha][coluna], self.board[peça.linha][peça.coluna]
         peça.movimento(linha,coluna)
 
-        if linha == LINHAS or linha == 0:
+        if linha == LINHAS - 1 or linha == 0:
             peça.make_king()
             if peça.cor == VERDE:
                 self.verdes_kings += 1
@@ -68,3 +68,93 @@ class Tabuleiro:
                 if peças != 0:
                     peças.draw(win)
         self.draw_bordas(win)
+
+    def remove(self,peças):
+        for peça in peças:
+            self.board[peça.linha][peça.coluna] = 0
+            if peça != 0:
+                if peça.cor == LARANJA:
+                    self.laranjas_left -= 1
+                else:
+                    self.verdes_left -= 1
+    def winner(self):
+        if self.laranjas_left <= 0:
+            return VERDE
+        elif self.verdes_left <= 0:
+            return LARANJA
+        return None
+    
+
+
+    def get_valid_moves(self, peça):
+        movimentos = {}
+        esquerda = peça.coluna - 1
+        direita = peça.coluna + 1
+        linha = peça.linha
+
+        if peça.cor == LARANJA or peça.king:
+            movimentos.update(self._traverse_left(linha -1, max(linha-3, -1), -1, peça.cor, esquerda))
+            movimentos.update(self._traverse_right(linha -1, max(linha-3, -1), -1, peça.cor, direita))
+
+        if peça.cor == VERDE or peça.king:
+            movimentos.update(self._traverse_left(linha +1, min(linha+3, LINHAS), 1, peça.cor, esquerda))
+            movimentos.update(self._traverse_right(linha +1, min(linha+3, LINHAS), 1, peça.cor, direita))
+
+        return movimentos
+    def _traverse_left(self, start, stop, step, cor, left, skipped=[]):
+        movimentos = {}
+        last = []  # Lista de peças que foram saltadas
+        for r in range(start, stop, step):
+            if left < 0:
+                break
+            current = self.board[r][left]
+            if current == 0:
+                if skipped and not last:
+                    break
+                elif skipped:
+                    movimentos[(r, left)] = last + skipped
+                else:
+                    movimentos[(r, left)] = last
+                if last:
+                    if step == -1:
+                        row = max(r-3,0)
+                    else:
+                        row = min(r+3,LINHAS)
+                    movimentos.update(self._traverse_left(r+step, row, step, cor, left-1, skipped=last))
+                    movimentos.update(self._traverse_right(r+step, row, step, cor, left+1, skipped=last))
+                break
+            elif current.cor == cor:
+                break
+            else:
+                last = [current]
+            left -= 1
+            
+        return movimentos
+    def _traverse_right(self, start, stop, step, cor, right, skipped=[]):
+        movimentos = {}
+        last = []  # Lista de peças que foram saltadas
+        for r in range(start, stop, step):
+            if right >= COLUNAS:
+                break
+            current = self.board[r][right]
+            if current == 0:
+                if skipped and not last:
+                    break
+                elif skipped:
+                    movimentos[(r, right)] = last + skipped
+                else:
+                    movimentos[(r, right)] = last
+                if last:
+                    if step == -1:
+                        row = max(r-3,0)
+                    else:
+                        row = min(r+3,LINHAS)
+                    movimentos.update(self._traverse_left(r+step, row, step, cor, right-1, skipped=last))
+                    movimentos.update(self._traverse_right(r+step, row, step, cor, right+1, skipped=last))
+                break
+            elif current.cor == cor:
+                break
+            else:
+                last = [current]
+            right += 1
+        return movimentos
