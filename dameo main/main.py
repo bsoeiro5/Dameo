@@ -1,5 +1,5 @@
 import pygame
-from dameo_sub.constants import LARGURA, ALTURA, TAMANHO_QUADRADO
+from dameo_sub.constants import LARGURA, ALTURA, TAMANHO_QUADRADO, LARANJA, VERDE
 from dameo_sub.tabuleiro import Tabuleiro
 from dameo_sub.game import Game
 
@@ -21,6 +21,9 @@ def main():             #função para correr o jogo
 
     while run:
         clock.tick(60)  #60 FPS
+        if game.winner() != None:  #se houver um vencedor
+            print(game.winner())
+            run = False
         
         for event in pygame.event.get():        #para fechar a janela
             if event.type == pygame.QUIT:
@@ -30,7 +33,8 @@ def main():             #função para correr o jogo
                 
                 pos = pygame.mouse.get_pos()
                 linha, coluna = get_row_col_from_mouse(pos)
-                
+               
+                game.select(linha, coluna)
         game.update()
 
     pygame.quit()
