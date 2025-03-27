@@ -240,3 +240,14 @@ class Tabuleiro:
                     continue  # Continua para verificar a casa seguinte
 
         return movimentos
+    
+    # Adicione este método à classe Tabuleiro
+    def has_forced_captures(self, cor):
+        for linha in range(LINHAS):
+            for coluna in range(COLUNAS):
+                peça = self.board[linha][coluna]
+                if peça != 0 and peça.cor == cor:
+                    moves = self.get_valid_moves(peça)
+                    if any(moves.values()):  # Se houver algum movimento de captura
+                        return True
+        return False
