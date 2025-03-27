@@ -96,15 +96,19 @@ class Tabuleiro:
             movimentos.update(self._traverse_vertical(linha - 1, max(linha-4, -1), -1, peca.cor, peca.coluna))
             movimentos.update(self._traverse_horizontal(peca.coluna - 1, -1, -1, peca.cor, linha))
             movimentos.update(self._traverse_horizontal(peca.coluna + 1, COLUNAS, 1, peca.cor, linha))
-
+            
         if peca.cor == VERDE or peca.king:
             movimentos.update(self._traverse_left(linha +1, min(linha+4, LINHAS), 1, peca.cor, esquerda))
             movimentos.update(self._traverse_right(linha +1, min(linha+4, LINHAS), 1, peca.cor, direita))
             movimentos.update(self._traverse_vertical(linha + 1, min(linha+4, LINHAS), 1, peca.cor, peca.coluna))
             movimentos.update(self._traverse_horizontal(peca.coluna - 1, -1, -1, peca.cor, linha))
             movimentos.update(self._traverse_horizontal(peca.coluna + 1, COLUNAS, 1, peca.cor, linha))
-        
+
+        # Adiciona a verificação de captura para trás
+        movimentos.update(self._check_backward_capture(peca))
+
         return movimentos
+
 
     def _traverse_left(self, start, stop, step, cor, left, skipped=[]):
         movimentos = {}
@@ -251,3 +255,20 @@ class Tabuleiro:
                     if any(moves.values()):  # Se houver algum movimento de captura
                         return True
         return False
+    
+    def _check_backward_capture(self, peca):
+        movimentos = {}
+        linha = peca.linha
+        coluna = peca.coluna
+
+        # Verifica a captura para trás
+        if peca.cor == VERDE and linha > 1:
+            if self.board[linha-1][coluna] != 0 and self.board[linha-1][coluna].cor != peca.cor:
+                if self.board[linha-2][coluna] == 0:
+                    movimentos[(linha-2, coluna)] = [self.board[linha-1][coluna]]
+        elif peca.cor == LARANJA and linha < LINHAS - 2:
+            if self.board[linha+1][coluna] != 0 and self.board[linha+1][coluna].cor != peca.cor:
+                if self.board[linha+2][coluna] == 0:
+                    movimentos[(linha+2, coluna)] = [self.board[linha+1][coluna]]
+
+        return movimentos
