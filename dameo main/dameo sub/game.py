@@ -12,6 +12,7 @@ class Game:
         self.tabuleiro = Tabuleiro()
         self.turn = VERDE
         self.valid_moves = {}
+
     def winner(self):
         return self.tabuleiro.winner() 
     
@@ -23,26 +24,37 @@ class Game:
     def reset(self):
         self._init()
 
-    def select(self, linha, coluna):  #tentar selecionar uma peça e verifica os movimentos possíveis
+    def select(self, linha, coluna):  
         if self.selected:
-            result = self._move(linha,coluna)
+            result = self._move(linha, coluna)
             if not result:
                 self.selected = None
-                self.select(linha,coluna)
+                self.select(linha, coluna)
         
-        peça = self.tabuleiro.get_peça(linha,coluna)
+        peça = self.tabuleiro.get_peça(linha, coluna)
+        
         if peça != 0 and peça.cor == self.turn:
             self.selected = peça
             self.valid_moves = self.tabuleiro.get_valid_moves(peça)
-            return True
+
+            # Verifica se existem movimentos de captura
+            capture_moves = {move: self.valid_moves[move] for move in self.valid_moves if self.valid_moves[move]}
+            
+            if capture_moves:
+                # Se houver movimentos de captura, deve-se forçar o jogador a realizá-los
+                self.valid_moves = capture_moves
+                return True
+            else:
+                # Se não houver movimentos de captura, permite o jogador fazer um movimento normal
+                return True
         
         return False
 
-    def _move(self,linha,coluna):
-        peça = self.tabuleiro.get_peça(linha,coluna)
-        if self.selected and peça == 0 and (linha,coluna) in self.valid_moves:
-            self.tabuleiro.movimento(self.selected,linha,coluna)
-            skipped = self.valid_moves[(linha,coluna)]
+    def _move(self, linha, coluna):
+        peça = self.tabuleiro.get_peça(linha, coluna)
+        if self.selected and peça == 0 and (linha, coluna) in self.valid_moves:
+            self.tabuleiro.movimento(self.selected, linha, coluna)
+            skipped = self.valid_moves[(linha, coluna)]
             if skipped:
                 self.tabuleiro.remove(skipped)
             self.change_turn()
@@ -50,11 +62,12 @@ class Game:
             return False
 
         return True
+
     def draw_valid_moves(self, movimentos):
         for movimento in movimentos:
             linha, coluna = movimento
             pygame.draw.circle(self.win, AZUL, (coluna * TAMANHO_QUADRADO + TAMANHO_QUADRADO//2, linha * TAMANHO_QUADRADO + TAMANHO_QUADRADO//2), 15)
-    
+
     def change_turn(self):
         self.valid_moves = {}
         if self.turn == VERDE:
