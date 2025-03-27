@@ -91,16 +91,16 @@ class Tabuleiro:
         linha = peca.linha
 
         if peca.cor == LARANJA or peca.king:
-            movimentos.update(self._traverse_left(linha -1, max(linha-3, -1), -1, peca.cor, esquerda))
-            movimentos.update(self._traverse_right(linha -1, max(linha-3, -1), -1, peca.cor, direita))
-            movimentos.update(self._traverse_vertical(linha - 1, max(linha-3, -1), -1, peca.cor, peca.coluna))
+            movimentos.update(self._traverse_left(linha -1, max(linha-4, -1), -1, peca.cor, esquerda))
+            movimentos.update(self._traverse_right(linha -1, max(linha-4, -1), -1, peca.cor, direita))
+            movimentos.update(self._traverse_vertical(linha - 1, max(linha-4, -1), -1, peca.cor, peca.coluna))
             movimentos.update(self._traverse_horizontal(peca.coluna - 1, -1, -1, peca.cor, linha))
             movimentos.update(self._traverse_horizontal(peca.coluna + 1, COLUNAS, 1, peca.cor, linha))
 
         if peca.cor == VERDE or peca.king:
-            movimentos.update(self._traverse_left(linha +1, min(linha+3, LINHAS), 1, peca.cor, esquerda))
-            movimentos.update(self._traverse_right(linha +1, min(linha+3, LINHAS), 1, peca.cor, direita))
-            movimentos.update(self._traverse_vertical(linha + 1, min(linha+3, LINHAS), 1, peca.cor, peca.coluna))
+            movimentos.update(self._traverse_left(linha +1, min(linha+4, LINHAS), 1, peca.cor, esquerda))
+            movimentos.update(self._traverse_right(linha +1, min(linha+4, LINHAS), 1, peca.cor, direita))
+            movimentos.update(self._traverse_vertical(linha + 1, min(linha+4, LINHAS), 1, peca.cor, peca.coluna))
             movimentos.update(self._traverse_horizontal(peca.coluna - 1, -1, -1, peca.cor, linha))
             movimentos.update(self._traverse_horizontal(peca.coluna + 1, COLUNAS, 1, peca.cor, linha))
         
@@ -137,7 +137,7 @@ class Tabuleiro:
             else:  # Peça do adversário (BLOQUEIA O MOVIMENTO)
                 break
 
-            left -= 1
+        left -= 1
 
         return movimentos
 
@@ -173,7 +173,7 @@ class Tabuleiro:
             else:  # Peça do adversário (BLOQUEIA O MOVIMENTO)
                 break
 
-            right += 1
+        right += 1
 
         return movimentos
 
