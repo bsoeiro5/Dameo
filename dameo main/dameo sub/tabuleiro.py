@@ -84,22 +84,26 @@ class Tabuleiro:
             return LARANJA
         return None
     
-    def get_valid_moves(self, peça):
+    def get_valid_moves(self, peca):
         movimentos = {}
-        esquerda = peça.coluna - 1
-        direita = peça.coluna + 1
-        linha = peça.linha
+        esquerda = peca.coluna - 1
+        direita = peca.coluna + 1
+        linha = peca.linha
 
-        if peça.cor == LARANJA or peça.king:
-            movimentos.update(self._traverse_left(linha -1, max(linha-3, -1), -1, peça.cor, esquerda))
-            movimentos.update(self._traverse_right(linha -1, max(linha-3, -1), -1, peça.cor, direita))
-            movimentos.update(self._traverse_vertical(linha - 1, max(linha-3, -1), -1, peça.cor, peça.coluna))
+        if peca.cor == LARANJA or peca.king:
+            movimentos.update(self._traverse_left(linha -1, max(linha-3, -1), -1, peca.cor, esquerda))
+            movimentos.update(self._traverse_right(linha -1, max(linha-3, -1), -1, peca.cor, direita))
+            movimentos.update(self._traverse_vertical(linha - 1, max(linha-3, -1), -1, peca.cor, peca.coluna))
+            movimentos.update(self._traverse_horizontal(peca.coluna - 1, -1, -1, peca.cor, linha))
+            movimentos.update(self._traverse_horizontal(peca.coluna + 1, COLUNAS, 1, peca.cor, linha))
 
-        if peça.cor == VERDE or peça.king:
-            movimentos.update(self._traverse_left(linha +1, min(linha+3, LINHAS), 1, peça.cor, esquerda))
-            movimentos.update(self._traverse_right(linha +1, min(linha+3, LINHAS), 1, peça.cor, direita))
-            movimentos.update(self._traverse_vertical(linha + 1, min(linha+3, LINHAS), 1, peça.cor, peça.coluna))
-
+        if peca.cor == VERDE or peca.king:
+            movimentos.update(self._traverse_left(linha +1, min(linha+3, LINHAS), 1, peca.cor, esquerda))
+            movimentos.update(self._traverse_right(linha +1, min(linha+3, LINHAS), 1, peca.cor, direita))
+            movimentos.update(self._traverse_vertical(linha + 1, min(linha+3, LINHAS), 1, peca.cor, peca.coluna))
+            movimentos.update(self._traverse_horizontal(peca.coluna - 1, -1, -1, peca.cor, linha))
+            movimentos.update(self._traverse_horizontal(peca.coluna + 1, COLUNAS, 1, peca.cor, linha))
+        
         return movimentos
 
     def _traverse_left(self, start, stop, step, cor, left, skipped=[]):
@@ -211,6 +215,7 @@ class Tabuleiro:
     def _traverse_horizontal(self, start, stop, step, cor, linha, skipped=[]):
         movimentos = {}
         last = []  # Peças que podem ser capturadas
+        encontrou_adversario = False  # Flag para indicar se encontrou uma peça adversária
 
         for c in range(start, stop, step):
             if not 0 <= c < COLUNAS:  # Verificar se está dentro dos limites do tabuleiro
@@ -219,23 +224,19 @@ class Tabuleiro:
             current = self.board[linha][c]
 
             if current == 0:  # Casa vazia
-                if skipped:
-                    movimentos[(linha, c)] = skipped
-                else:
+                if encontrou_adversario:  # Apenas permite mover se já encontrou uma peça adversária
                     movimentos[(linha, c)] = last
-
-                # Se já encontrou uma peça adversária (captura), deve continuar para a próxima casa
-                if last:
-                    movimentos.update(self._traverse_horizontal(c + step, stop, step, cor, linha, skipped=skipped))
-                break
+                break  # Não permite continuar movimento sem pular uma peça adversária
 
             elif current.cor == cor:  # Peça da mesma cor -> bloqueia o movimento
                 break
 
             else:  # Peça adversária
-                if last:  # Se já encontrou uma peça adversária antes, a captura está bloqueada
+                if encontrou_adversario:  # Se já encontrou uma peça adversária antes, a captura está bloqueada
                     break
                 else:
                     last.append(current)  # Marca a peça adversária como capturada
+                    encontrou_adversario = True  # Define a flag como verdadeira para permitir o pulo
+                    continue  # Continua para verificar a casa seguinte
 
         return movimentos
