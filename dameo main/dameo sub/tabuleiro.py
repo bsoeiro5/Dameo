@@ -90,14 +90,18 @@ class Tabuleiro:
         direita = peca.coluna + 1
         linha = peca.linha
 
-        if peca.cor == LARANJA or peca.king:
+        if peca.king:
+            movimentos.update(self._get_king_moves(peca))
+
+
+        if peca.cor == LARANJA:
             movimentos.update(self._traverse_left(linha -1, max(linha-4, -1), -1, peca.cor, esquerda))
             movimentos.update(self._traverse_right(linha -1, max(linha-4, -1), -1, peca.cor, direita))
             movimentos.update(self._traverse_vertical(linha - 1, max(linha-4, -1), -1, peca.cor, peca.coluna))
             movimentos.update(self._traverse_horizontal(peca.coluna - 1, -1, -1, peca.cor, linha))
             movimentos.update(self._traverse_horizontal(peca.coluna + 1, COLUNAS, 1, peca.cor, linha))
             
-        if peca.cor == VERDE or peca.king:
+        if peca.cor == VERDE:
             movimentos.update(self._traverse_left(linha +1, min(linha+4, LINHAS), 1, peca.cor, esquerda))
             movimentos.update(self._traverse_right(linha +1, min(linha+4, LINHAS), 1, peca.cor, direita))
             movimentos.update(self._traverse_vertical(linha + 1, min(linha+4, LINHAS), 1, peca.cor, peca.coluna))
@@ -108,6 +112,88 @@ class Tabuleiro:
         movimentos.update(self._check_backward_capture(peca))
 
         return movimentos
+    
+
+    def _get_king_moves(self, king):
+        """ Retorna todos os movimentos possíveis do king. """
+        movimentos = {}
+
+        # Movimento livre em todas as direções
+        movimentos.update(self._traverse_line(king.linha, king.coluna, -1, 0))  # Para cima
+        movimentos.update(self._traverse_line(king.linha, king.coluna, 1, 0))   # Para baixo
+        movimentos.update(self._traverse_line(king.linha, king.coluna, 0, -1))  # Para a esquerda
+        movimentos.update(self._traverse_line(king.linha, king.coluna, 0, 1))   # Para a direita
+        movimentos.update(self._traverse_line(king.linha, king.coluna, -1, -1)) # Diagonal superior esquerda
+        movimentos.update(self._traverse_line(king.linha, king.coluna, -1, 1))  # Diagonal superior direita
+        movimentos.update(self._traverse_line(king.linha, king.coluna, 1, -1))  # Diagonal inferior esquerda
+        movimentos.update(self._traverse_line(king.linha, king.coluna, 1, 1))   # Diagonal inferior direita
+
+        # Captura apenas na horizontal e vertical
+        movimentos.update(self._king_capture(king, -1, 0))  # Captura para cima
+        movimentos.update(self._king_capture(king, 1, 0))   # Captura para baixo
+        movimentos.update(self._king_capture(king, 0, -1))  # Captura para a esquerda
+        movimentos.update(self._king_capture(king, 0, 1))   # Captura para a direita
+
+        return movimentos
+
+
+    def _traverse_line(self, linha, coluna, dir_linha, dir_coluna):
+        """ Move-se livremente em linha reta até encontrar uma peça ou borda do tabuleiro. """
+        movimentos = {}
+        r, c = linha + dir_linha, coluna + dir_coluna
+
+        while 0 <= r < LINHAS and 0 <= c < COLUNAS:
+            if self.board[r][c] == 0:  # Casa vazia, pode se mover
+                movimentos[(r, c)] = []
+            else:  # Encontrou uma peça, bloqueia o caminho
+                break
+            r += dir_linha
+            c += dir_coluna
+
+        return movimentos
+
+
+    def _king_capture(self, king, dir_linha, dir_coluna):
+        """ Captura para frente na direção horizontal ou vertical, podendo seguir até onde desejar após capturar. """
+        movimentos = {}
+        r, c = king.linha + dir_linha, king.coluna + dir_coluna
+        capturada = None
+
+        while 0 <= r < LINHAS and 0 <= c < COLUNAS:
+            peça = self.board[r][c]
+
+            if peça == 0:  # Casa vazia
+                if capturada:  # Se já capturou, pode continuar
+                    movimentos[(r, c)] = [capturada]
+            elif peça.cor == king.cor:  # Peça da mesma cor bloqueia
+                break
+            else:  # Peça adversária
+                if capturada:  # Se já capturou antes, não pode capturar duas vezes seguidas
+                    break
+                capturada = peça  # Marca a peça para possível captura
+
+            r += dir_linha
+            c += dir_coluna
+
+        return movimentos
+
+    
+
+    def _traverse_diagonal_king(self, start_linha, start_coluna, step_linha, step_coluna):
+        movimentos = {}
+
+        linha, coluna = start_linha, start_coluna
+        while 0 <= linha < LINHAS and 0 <= coluna < COLUNAS:
+            if self.board[linha][coluna] == 0:  # Se for casa vazia, adiciona como movimento válido
+                movimentos[(linha, coluna)] = []
+            else:  # Se encontrar uma peça, para
+                break
+
+            linha += step_linha
+            coluna += step_coluna
+
+        return movimentos
+
 
 
     def _traverse_left(self, start, stop, step, cor, left, skipped=[]):
