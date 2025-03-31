@@ -13,34 +13,27 @@ def get_row_col_from_mouse(pos):
     coluna = x // TAMANHO_QUADRADO
     return linha, coluna
 
-def main():             #função para correr o jogo
+def main():
     run = True 
     clock = pygame.time.Clock()
     game = Game(WIN)
     
-
     while run:
         clock.tick(60)  # 60 FPS
-        if game.winner() != None:  # se houver um vencedor
-            print(game.winner())
-            run = False
+        if game.verificar_fim_do_jogo():  # Verifica se o jogo terminou
+            pygame.time.wait(4000)  # Espera 4 segundos para que o jogador veja a mensagem
+            run = False  # Encerra o loop do jogo
         
-        for event in pygame.event.get():  # para fechar a janela
-            try:
-                if event.type == pygame.QUIT:
-                    run = False
-                
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    pos = pygame.mouse.get_pos()
-                    linha, coluna = get_row_col_from_mouse(pos)
-                    game.select(linha, coluna)
-            except Exception as e:
-                print(f"Erro ao processar evento: {e}")
+        for event in pygame.event.get():  # Para fechar a janela
+            if event.type == pygame.QUIT:
+                run = False
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                linha, coluna = get_row_col_from_mouse(pos)
+                game.select(linha, coluna)
         
-        try:
-            game.update()
-        except Exception as e:
-            print(f"Erro ao atualizar o jogo: {e}")
+        game.update()
 
     pygame.quit()
 
