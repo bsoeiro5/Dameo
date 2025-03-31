@@ -8,58 +8,48 @@ from minimax.algoritmo import minimax
 WIN = pygame.display.set_mode((LARGURA, ALTURA))
 pygame.display.set_caption('Dameo')
 
-def get_row_col_from_mouse(pos):
-    """Converte a posição do mouse em coordenadas do tabuleiro."""
-    x, y = pos
-    linha = y // TAMANHO_QUADRADO
-    coluna = x // TAMANHO_QUADRADO
-    return linha, coluna
-
-def jogo_principal(modo="pvp"):
-    """
-    Loop principal do jogo Dameo. Recebe o modo de jogo:
-    - "pvp": Player vs Player
-    - "pvc": Player vs Computer
-    - "cvc": Computer vs Computer
-    """
-    run = True
-    clock = pygame.time.Clock()
+def jogo_principal(modo):
+    WIN = pygame.display.set_mode((LARGURA, ALTURA))
     game = Game(WIN)
-    
+    run = True
+
     while run:
-        clock.tick(60)  # 60 FPS
-
-        if game.turn == VERDE:
-            value, new_board = minimax(game.get_tabuleiro(), 3, VERDE, game)
-            game.ai_move(new_board)
         
-        # Verificar se o jogo terminou
-        if game.verificar_fim_do_jogo():  # Função de verificação no Game
-            pygame.time.wait(4000)  # Espera para mostrar o vencedor
+        if game.verificar_fim_do_jogo():
+            pygame.time.delay(3000)  # Pequena pausa para o jogador ver o resultado
             run = False
-        
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:  # Encerrar ao fechar a janela
-                run = False
-            
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()
-                linha, coluna = get_row_col_from_mouse(pos)
-                
-                # Lógica do modo Player vs Player
-                if modo == "pvp":
-                    game.select(linha, coluna)
-                
-                # Modo Player vs Computer
-                elif modo == "pvc":
-                    game.select(linha, coluna)
-                    # Adicione aqui a lógica de jogada da IA
-                    
-                # Modo Computer vs Computer
-                elif modo == "cvc":
-                    # Adicione lógica para ambos os lados jogados pela IA
-                    pass
+            break
 
-        game.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                break
+
+            if modo == "pvp":  # Player vs Player (nenhuma IA joga)
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = pygame.mouse.get_pos()
+                    linha = y // 100
+                    coluna = x // 100
+                    game.select(linha, coluna)
+
+            elif modo == "pvc":  # Player vs Computer
+                if game.turn == VERDE:  # Jogador Verde joga manualmente
+                    value, new_tabuleiro = minimax(game.tabuleiro, 3, True, game)
+                    game.ai_move(new_tabuleiro)
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        x, y = pygame.mouse.get_pos()
+                        linha = y // 100
+                        coluna = x // 100
+                        game.select(linha, coluna)
+                        
+                else:  # IA (Laranja) joga automaticamente
+                    pygame.time.delay(500)
+                    game.ai_move(game.tabuleiro)
+
+            elif modo == "cvc":  # Computer vs Computer
+                pygame.time.delay(500)  # Pequena pausa para visualizar as jogadas
+                game.ai_move()  # IA joga para ambos os lados
+
+        game.update(win=WIN)
 
     pygame.quit()
