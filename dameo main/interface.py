@@ -12,7 +12,7 @@ WIN = pygame.display.set_mode((LARGURA, ALTURA))
 pygame.display.set_caption("Dameo - Menu Inicial")
 
 # Carregar imagem de fundo
-FUNDO = pygame.image.load("assets/background.png")
+FUNDO = pygame.image.load("assets/background.png.jpeg")
 FUNDO = pygame.transform.scale(FUNDO, (LARGURA, ALTURA))
 
 # Definir fontes
