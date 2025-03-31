@@ -1,5 +1,5 @@
 import pygame
-from .constants import VERDE, LARANJA, TAMANHO_QUADRADO, ALTURA, AZUL, LINHAS, COLUNAS
+from .constants import VERDE, LARANJA, TAMANHO_QUADRADO, ALTURA, AZUL, LINHAS, COLUNAS, LARGURA
 from .tabuleiro import Tabuleiro
 
 class Game:
@@ -130,3 +130,41 @@ class Game:
         for movimento in movimentos:
             linha, coluna = movimento
             pygame.draw.circle(self.win, AZUL, (coluna * TAMANHO_QUADRADO + TAMANHO_QUADRADO//2, linha * TAMANHO_QUADRADO + TAMANHO_QUADRADO//2), 15)
+
+    def display_winner_message(self, winner):
+        pygame.font.init()
+        font = pygame.font.Font(None, 48)  # Usa a fonte padrão do pygame
+        message = "Empate!" if winner is None else f"O jogador {winner} ganhou!"
+        text = font.render(message, True, (0, 0, 255))  # Cor azul para a mensagem
+        text_rect = text.get_rect(center=(LARGURA//2, ALTURA//2))
+        self.win.blit(text, text_rect)
+        pygame.display.update()
+
+    def verificar_fim_do_jogo(self):
+        # Verifica se há um vencedor
+        vencedor = self.winner()
+        
+        if vencedor:
+            self.display_winner_message(vencedor)  # Exibe a mensagem de vencedor
+            return True
+        
+        # Verifica se o jogo terminou em empate (nenhum jogador pode se mover)
+        verde_moves = any(
+            self.tabuleiro.get_valid_moves(self.tabuleiro.get_peça(linha, coluna))
+            for linha in range(LINHAS)
+            for coluna in range(COLUNAS)
+            if self.tabuleiro.get_peça(linha, coluna) != 0 and self.tabuleiro.get_peça(linha, coluna).cor == VERDE
+        )
+        laranja_moves = any(
+            self.tabuleiro.get_valid_moves(self.tabuleiro.get_peça(linha, coluna))
+            for linha in range(LINHAS)
+            for coluna in range(COLUNAS)
+            if self.tabuleiro.get_peça(linha, coluna) != 0 and self.tabuleiro.get_peça(linha, coluna).cor == LARANJA
+        )
+        
+        if not verde_moves and not laranja_moves:
+            self.display_winner_message(None)  # Exibe mensagem de empate
+            return True
+        
+        return False
+    
