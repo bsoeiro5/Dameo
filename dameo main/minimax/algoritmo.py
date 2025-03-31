@@ -1,6 +1,7 @@
-from copy import deepcopy
 import pygame
+from copy import deepcopy
 from dameo_sub.constants import LARANJA, VERDE
+from dameo_sub.tabuleiro import Tabuleiro
 
 def minimax(tabuleiro, profundidade, max_player, game):
     if profundidade == 0 or tabuleiro.winner() != None:
@@ -36,9 +37,12 @@ def get_all_moves(tabuleiro, cor, game):
 
     for piece in tabuleiro.get_all_peças(cor):
         valid_moves = tabuleiro.get_valid_moves(piece)
-        for move, skip in valid_move.items():
+        for move, skip in valid_moves.items():
             temp_tabuleiro = deepcopy(tabuleiro)
-            new_tabuleiro = simular_movimento(piece, move, temp_tabuleiro, game, skip)
+            temp_peça = temp_tabuleiro.get_peça(piece.linha, piece.coluna)
+            new_tabuleiro = simular_movimento(temp_peça, move, temp_tabuleiro, game, skip)
             moves.append(new_tabuleiro)
 
     return moves
+
+    
