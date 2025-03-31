@@ -35,8 +35,7 @@ class Game:
             if (linha, coluna) in self.valid_moves:
                 return self._process_move(linha, coluna)
             else:
-                # Se clicou em outro lugar, cancela a captura múltipla e reseta
-                self._end_turn()
+                # Se clicou em outro lugar, mantém a seleção da peça que está capturando
                 return False
         
         peça = self.tabuleiro.get_peça(linha, coluna)
@@ -44,7 +43,7 @@ class Game:
         # Verifica se há capturas obrigatórias
         self._check_capture_requirements()
         
-        # Seleciona uma peça do jogador atual
+        # Só permite selecionar peça se for do jogador atual
         if peça != 0 and peça.cor == self.turn:
             # Se há capturas obrigatórias, só permite selecionar peças que podem capturar
             if self.must_capture:
@@ -61,48 +60,48 @@ class Game:
                 self.valid_moves = self.tabuleiro.get_valid_moves(peça)
                 return True
         
-        # Se já tem uma peça selecionada, tenta mover
-        if self.selected:
-            result = self._process_move(linha, coluna)
-            if not result and peça != 0 and peça.cor != self.turn:
-                # Se clicou em uma peça adversária sem ser um movimento válido, reseta
-                self._end_turn()
-            return result
+        # Se já tem uma peça selecionada e clicou em um movimento válido
+        if self.selected and (linha, coluna) in self.valid_moves:
+            return self._process_move(linha, coluna)
         
+        # Se clicou em uma posição inválida, apenas limpa a seleção
+        self.selected = None
+        self.valid_moves = {}
         return False
 
     def _process_move(self, linha, coluna):
-        peça = self.tabuleiro.get_peça(linha, coluna)
-        
-        if peça == 0 and (linha, coluna) in self.valid_moves:
-            # Faz o movimento
-            self.tabuleiro.movimento(self.selected, linha, coluna)
+        if (linha, coluna) in self.valid_moves:
+            peça = self.selected
             skipped = self.valid_moves[(linha, coluna)]
+            
+            # Faz o movimento
+            self.tabuleiro.movimento(peça, linha, coluna)
             
             if skipped:  # Se houve captura
                 self.tabuleiro.remove(skipped)
                 
                 # Verifica se há mais capturas disponíveis
-                current_piece = self.tabuleiro.get_peça(linha, coluna)
-                self.valid_moves = self.tabuleiro.get_valid_moves(current_piece)
-                # Filtra apenas capturas
-                self.valid_moves = {move: skipped for move, skipped in self.valid_moves.items() if skipped}
+                self.valid_moves = self.tabuleiro.get_valid_moves(peça)
+                self.valid_moves = {move: skip for move, skip in self.valid_moves.items() if skip}
                 
                 if self.valid_moves:  # Se pode continuar capturando
-                    self.capturing_piece = current_piece
-                    self.selected = current_piece
+                    self.capturing_piece = peça
+                    self.selected = peça
                     self.must_capture = True
                     return True
-                else:  # Não há mais capturas
-                    self._end_turn()
-                    return True
-            else:  # Movimento sem captura
-                if self.must_capture:
-                    return False  # Não deveria acontecer
-                self._end_turn()
-                return True
+            
+            # Fim do turno
+            self._end_turn()
+            return True
         
         return False
+
+    def _end_turn(self):
+        self.selected = None
+        self.capturing_piece = None
+        self.valid_moves = {}
+        self.must_capture = False
+        self.turn = LARANJA if self.turn == VERDE else VERDE
 
     def _check_capture_requirements(self):
         self.must_capture = False
@@ -116,17 +115,6 @@ class Game:
                         self.must_capture = True
                         return
 
-    def _end_turn(self):
-        self.selected = None
-        self.capturing_piece = None
-        self.valid_moves = {}
-        self.must_capture = False
-        
-        # Muda o turno
-        self.turn = LARANJA if self.turn == VERDE else VERDE
-        
-        # Verifica capturas obrigatórias para o próximo jogador
-        self._check_capture_requirements()
 
     def draw_valid_moves(self, movimentos):
         for movimento in movimentos:
@@ -180,6 +168,9 @@ class Game:
     def get_tabuleiro(self):
         return self.tabuleiro
 
+    def ai_move(self, tabuleiro):
+        self.tabuleiro = tabuleiro
+        self.change_turn()
     def ai_move(self, tabuleiro):
         self.tabuleiro = tabuleiro
         self.change_turn()
