@@ -1,25 +1,27 @@
 import pygame
 from .constants import VERDE, LARANJA, TAMANHO_QUADRADO, ALTURA, AZUL, LINHAS, COLUNAS, LARGURA
-from .tabuleiro import Tabuleiro
+from .tabuleiro import Tabuleiro  # Ensure Tabuleiro is correctly imported and implemented
 
 class Game:
     def __init__(self, win):
         self._init()
         self.win = win
+        print("Machado morto")
 
     def _init(self):
         self.selected = None
-        self.tabuleiro = Tabuleiro()
+        self.tabuleiro = Tabuleiro()  # Ensure Tabuleiro is properly initialized and not returning None
         self.turn = VERDE
         self.valid_moves = {}
         self.must_capture = False
         self.capturing_piece = None  # Armazena a peça que está capturando
 
+
     def winner(self):
         return self.tabuleiro.winner()
     
-    def update(self):
-        self.tabuleiro.desenhar(self.win)
+    def update(self,win):
+        self.tabuleiro.desenhar(win)
         self.draw_valid_moves(self.valid_moves)
         pygame.display.update()
 
@@ -168,3 +170,16 @@ class Game:
         
         return False
     
+    def change_turn(self):
+        self.valid_moves = {}
+        if self.turn == VERDE:
+            self.turn = LARANJA
+        else:
+            self.turn = VERDE
+    
+    def get_tabuleiro(self):
+        return self.tabuleiro
+
+    def ai_move(self, tabuleiro):
+        self.tabuleiro = tabuleiro
+        self.change_turn()
