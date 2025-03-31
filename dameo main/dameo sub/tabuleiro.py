@@ -79,9 +79,9 @@ class Tabuleiro:
                     self.verdes_left -= 1
     def winner(self):
         if self.laranjas_left <= 0:
-            return VERDE
+            return 'VERDE'
         elif self.verdes_left <= 0:
-            return LARANJA
+            return 'LARANJA'
         return None
     
     def get_valid_moves(self, peca):
