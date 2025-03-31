@@ -20,7 +20,18 @@ class Tabuleiro:
             pygame.draw.line(win, PRETO, (0, LINHA * TAMANHO_QUADRADO), (ALTURA, LINHA * TAMANHO_QUADRADO), 2)
             for COLUNA in range(COLUNAS):
                 pygame.draw.line(win, PRETO, (COLUNA * TAMANHO_QUADRADO, 0), (COLUNA * TAMANHO_QUADRADO, ALTURA), 2)
-                
+
+    def heuristica(self):
+        return self.laranjas_left - self.verdes_left + (self.laranjas_kings - self.verdes_kings)
+
+    def get_all_peças(self,cor):
+        peças = []
+        for LINHA in self.board:
+            for peça in LINHA:
+                if peça != 0 and peça.cor == cor:
+                    peças.append(peça)
+        return peças
+
     def movimento(self,peça,linha,coluna):
         self.board[peça.linha][peça.coluna], self.board[linha][coluna] = self.board[linha][coluna], self.board[peça.linha][peça.coluna]
         peça.movimento(linha,coluna)
@@ -57,8 +68,6 @@ class Tabuleiro:
                     self.board[LINHA].append(Peças(LINHA, COLUNA, LARANJA))
                 else:
                     self.board[LINHA].append(0)  # Espaço vazio
-
-
 
     def desenhar(self,win): 
         self.draw_quadrados(win)
@@ -358,3 +367,5 @@ class Tabuleiro:
                     movimentos[(linha+2, coluna)] = [self.board[linha+1][coluna]]
 
         return movimentos
+    
+    
