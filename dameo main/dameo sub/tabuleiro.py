@@ -22,7 +22,26 @@ class Tabuleiro:
                 pygame.draw.line(win, PRETO, (COLUNA * TAMANHO_QUADRADO, 0), (COLUNA * TAMANHO_QUADRADO, ALTURA), 2)
 
     def heuristica(self):
-        return self.laranjas_left - self.verdes_left + (self.laranjas_kings - self.verdes_kings)
+        # Peso para peças normais e kings
+        peso_normal = 1
+        peso_king = 2
+
+        # Diferença de peças (kings valem mais)
+        diferenca_pecas = (self.laranjas_left + self.laranjas_kings * peso_king) - (self.verdes_left + self.verdes_kings * peso_king)
+
+        # Avaliação da proximidade de peças para se tornarem kings
+        proximidade_kings_verde = sum(peca.linha for linha in self.board for peca in linha if peca != 0 and peca.cor == VERDE)
+        proximidade_kings_laranja = sum((LINHAS - 1 - peca.linha) for linha in self.board for peca in linha if peca != 0 and peca.cor == LARANJA)
+        fator_kings = (proximidade_kings_laranja - proximidade_kings_verde) / (LINHAS * self.laranjas_left + self.verdes_left + 1)  # Normalização
+
+        # Controle do tabuleiro (posições centrais são estratégicas)
+        pontos_estrategicos = [(LINHAS//2, COLUNAS//2), (LINHAS//2 - 1, COLUNAS//2), (LINHAS//2, COLUNAS//2 - 1), (LINHAS//2 - 1, COLUNAS//2 - 1)]
+        controle_verde = sum(1 for linha, coluna in pontos_estrategicos if self.board[linha][coluna] != 0 and self.board[linha][coluna].cor == VERDE)
+        controle_laranja = sum(1 for linha, coluna in pontos_estrategicos if self.board[linha][coluna] != 0 and self.board[linha][coluna].cor == LARANJA)
+        controle_tabuleiro = controle_laranja - controle_verde
+
+        # Combinação dos fatores com pesos ajustáveis
+        return diferenca_pecas + fator_kings * 1.5 + controle_tabuleiro * 2
 
     def get_all_peças(self,cor):
         peças = []
