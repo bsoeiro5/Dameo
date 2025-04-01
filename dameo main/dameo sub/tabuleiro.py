@@ -43,6 +43,9 @@ class Tabuleiro:
         # Combinação dos fatores com pesos ajustáveis
         return diferenca_pecas + fator_kings * 1.5 + controle_tabuleiro * 2
 
+        
+        return score
+
     def get_all_peças(self,cor):
         peças = []
         for LINHA in self.board:
@@ -51,16 +54,19 @@ class Tabuleiro:
                     peças.append(peça)
         return peças
 
-    def movimento(self,peça,linha,coluna):
-        self.board[peça.linha][peça.coluna], self.board[linha][coluna] = self.board[linha][coluna], self.board[peça.linha][peça.coluna]
-        peça.movimento(linha,coluna)
+    def movimento(self, peca, linha, coluna):
+        self.board[peca.linha][peca.coluna], self.board[linha][coluna] = self.board[linha][coluna], self.board[peca.linha][peca.coluna]
+        peca.movimento(linha, coluna)
 
-        if linha == LINHAS - 1 or linha == 0:
-            peça.make_king()
-            if peça.cor == VERDE:
+        # Corrigir a lógica de transformação em king
+        if (peca.cor == VERDE and linha == LINHAS - 1) or (peca.cor == LARANJA and linha == 0):
+            peca.make_king()
+            if peca.cor == VERDE:
                 self.verdes_kings += 1
             else:
                 self.laranjas_kings += 1
+            
+            print(f"Movimento realizado: peça agora está em ({peca.linha}, {peca.coluna})")
 
     def get_peça(self,linha,coluna):
         return self.board[linha][coluna]
@@ -386,5 +392,3 @@ class Tabuleiro:
                     movimentos[(linha+2, coluna)] = [self.board[linha+1][coluna]]
 
         return movimentos
-    
-    
