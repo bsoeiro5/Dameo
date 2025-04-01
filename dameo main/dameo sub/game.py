@@ -164,6 +164,7 @@ class Game:
             self.turn = LARANJA
         else:
             self.turn = VERDE
+        print(f"Turno mudado para: {self.turn}")
     
     def get_tabuleiro(self):
         return self.tabuleiro
@@ -171,6 +172,9 @@ class Game:
     def ai_move(self, tabuleiro):
         self.tabuleiro = tabuleiro
         self.change_turn()
-    def ai_move(self, tabuleiro):
-        self.tabuleiro = tabuleiro
-        self.change_turn()
+    
+    def get_valid_moves_for_piece(self, piece):
+        """Retorna todos os movimentos válidos para uma peça específica."""
+        if piece != 0 and piece.cor == self.turn:
+            return self.tabuleiro.get_valid_moves(piece)
+        return {}
