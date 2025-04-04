@@ -304,6 +304,7 @@ class Tabuleiro:
     def _traverse_vertical(self, start, stop, step, cor, coluna, skipped=[]):
         movimentos = {}
         last = []  # Peças que podem ser capturadas
+        linear = False
 
         for r in range(start, stop, step):
             current = self.board[r][coluna]
@@ -324,17 +325,17 @@ class Tabuleiro:
                     movimentos.update(self._traverse_right(r + step, row, step, cor, coluna + 1, skipped=skipped))
                 break
 
-            elif current.cor == cor:  # Peça da mesma cor -> permite ultrapassar
+            elif current.cor == cor: # Peça da mesma cor -> permite ultrapassar
+                linear = True
                 continue
 
             else:  # Peça adversária
                 if last:  # Já encontrou uma peça adversária antes? Bloqueia o movimento
                     break
+                if linear:  # Se já encontrou uma peça da mesma cor, não pode capturar
+                    break
                 else:
                     last.append(current)  # Marca para possível captura
-
-        return movimentos
-    
 
     def _traverse_horizontal(self, start, stop, step, cor, linha, skipped=[]):
         movimentos = {}
