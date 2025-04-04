@@ -392,3 +392,4 @@ class Tabuleiro:
                     movimentos[(linha+2, coluna)] = [self.board[linha+1][coluna]]
 
         return movimentos
+    
