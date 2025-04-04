@@ -82,6 +82,7 @@ class Game:
                 
                 # Verifica se há mais capturas disponíveis
                 self.valid_moves = self.tabuleiro.get_valid_moves(peça)
+                # Filtra apenas movimentos de captura
                 self.valid_moves = {move: skip for move, skip in self.valid_moves.items() if skip}
                 
                 if self.valid_moves:  # Se pode continuar capturando
