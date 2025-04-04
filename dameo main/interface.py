@@ -20,8 +20,8 @@ fonte = pygame.font.Font(None, 50)
 fonte_subtitulo = pygame.font.Font(None, 40)
 
 def desenhar_botao(win, texto, cor, x, y, largura, altura):
-    """Desenha um botão na tela com texto centralizado."""
-    pygame.draw.rect(win,PRETO, (x-2, y-2, largura+4, altura+4))  # Desenha o botão
+    """Desenha um botão na tela com texto centralizado e contorno preto."""
+    pygame.draw.rect(win, PRETO, (x-2, y-2, largura+4, altura+4))  # contorno preto
     pygame.draw.rect(win, cor, (x, y, largura, altura))
     texto_render = fonte.render(texto, True, BRANCO)
     win.blit(
@@ -36,7 +36,7 @@ def menu():
     """Exibe o menu inicial."""
     run = True
     while run:
-        WIN.blit(FUNDO, (0, 0))  # Desenha a imagem de fundo
+        WIN.blit(FUNDO, (0, 0))
         
         # Título
         titulo = fonte.render("Bem-vindo ao Dameo!", True, BRANCO)
@@ -45,15 +45,14 @@ def menu():
         # Botões
         largura_botao = 400
         altura_botao = 60
-        espacamento = 40  # Espaçamento entre os botões
+        espacamento = 40  # Espaçamento entre botões
 
-        # Calcula a posição central para o eixo X dos botões
         x_centro = (LARGURA - largura_botao) // 2
 
-        botao_pvp = (x_centro-175, 270, largura_botao, altura_botao)
-        botao_pvc = (x_centro-175, 270 + altura_botao + espacamento, largura_botao, altura_botao)
-        botao_cvc = (x_centro-175, 270 + 2 * (altura_botao + espacamento), largura_botao, altura_botao)
-        botao_regras = (x_centro,600, largura_botao, altura_botao)
+        botao_pvp = (x_centro - 175, 270, largura_botao, altura_botao)
+        botao_pvc = (x_centro - 175, 270 + altura_botao + espacamento, largura_botao, altura_botao)
+        botao_cvc = (x_centro - 175, 270 + 2 * (altura_botao + espacamento), largura_botao, altura_botao)
+        botao_regras = (x_centro, 600, largura_botao, altura_botao)
         
         desenhar_botao(WIN, "Player vs Player", CASTANHO, *botao_pvp)
         desenhar_botao(WIN, "Player vs Computer", CASTANHO, *botao_pvc)
@@ -70,25 +69,31 @@ def menu():
             
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
-                if x_centro-175 <= x <= x_centro-175 + largura_botao:
+                if x_centro - 175 <= x <= x_centro - 175 + largura_botao:
                     if 270 <= y <= 270 + altura_botao:
                         return "pvp"
                     elif 270 + altura_botao + espacamento <= y <= 270 + 2 * altura_botao + espacamento:
                         return selecionar_dificuldade("pvc")
-                    elif 270 + 2 * (altura_botao + espacamento) <= y <= 270 + 3 * altura_botao + 2 * espacamento:
+                    elif 270 + 2*(altura_botao + espacamento) <= x <= 270 + 3*altura_botao + 2*espacamento:
                         return selecionar_dificuldade("cvc")
                 if x_centro <= x <= x_centro + largura_botao:
                     if 600 <= y <= 600 + altura_botao:
-                        regras(WIN)
+                        regras(WIN)  # Exibe as regras
     return None
 
 def selecionar_dificuldade(modo):
-    """Exibe a tela de seleção de dificuldade."""
+    """Exibe a tela de seleção de dificuldade com botão 'Voltar' no canto superior esquerdo."""
     run = True
     dificuldade_selecionada = None
+
+    # Parâmetros do botão "Voltar" (canto superior esquerdo)
+    voltar_x = 20
+    voltar_y = 20
+    voltar_largura = 120
+    voltar_altura = 50
     
     while run:
-        WIN.blit(FUNDO, (0, 0))  # Desenha a imagem de fundo
+        WIN.blit(FUNDO, (0, 0))
         
         # Título
         titulo = fonte.render("Selecione a Dificuldade", True, BRANCO)
@@ -99,23 +104,23 @@ def selecionar_dificuldade(modo):
         subtitulo = fonte_subtitulo.render(f"Modo: {modo_texto}", True, BRANCO)
         WIN.blit(subtitulo, ((LARGURA - subtitulo.get_width()) // 2, 120))
         
-        # Botões
+        # Botões de dificuldade
         largura_botao = 300
         altura_botao = 60
-        espacamento = 40  # Espaçamento entre os botões
-        
-        # Calcula a posição central para o eixo X dos botões
+        espacamento = 40
+
         x_centro = (LARGURA - largura_botao) // 2
-        
-        botao_facil = (x_centro-175, 270, largura_botao, altura_botao)
-        botao_medio = (x_centro-175, 270 + altura_botao + espacamento, largura_botao, altura_botao)
-        botao_dificil = (x_centro-175, 270 + 2 * (altura_botao + espacamento), largura_botao, altura_botao)
-        botao_voltar = (x_centro,  600, largura_botao, altura_botao)
+
+        botao_facil = (x_centro - 175, 270, largura_botao, altura_botao)
+        botao_medio = (x_centro - 175, 270 + altura_botao + espacamento, largura_botao, altura_botao)
+        botao_dificil = (x_centro - 175, 270 + 2*(altura_botao + espacamento), largura_botao, altura_botao)
         
         desenhar_botao(WIN, "Fácil", CASTANHO, *botao_facil)
         desenhar_botao(WIN, "Médio", CASTANHO, *botao_medio)
         desenhar_botao(WIN, "Difícil", CASTANHO, *botao_dificil)
-        desenhar_botao(WIN, "Voltar", CASTANHO, *botao_voltar)
+        
+        # Botão "Voltar" no canto superior esquerdo
+        desenhar_botao(WIN, "Voltar", CASTANHO, voltar_x, voltar_y, voltar_largura, voltar_altura)
         
         pygame.display.update()
         
@@ -127,26 +132,23 @@ def selecionar_dificuldade(modo):
             
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
-                print(f"Mouse clicked at: x={x}, y={y}")  # Debugging mouse position
-                print(f"x_centro: {x_centro}, largura_botao: {largura_botao}")  # Debugging button position
-
-                if x_centro-175 <= x <= x_centro-175 + largura_botao:
+                # Verifica se clicou no botão "Voltar"
+                if voltar_x <= x <= voltar_x + voltar_largura and voltar_y <= y <= voltar_y + voltar_altura:
+                    return menu()
+                
+                # Verifica os botões de dificuldade (na área central)
+                if x_centro - 175 <= x <= x_centro - 175 + largura_botao:
                     if 270 <= y <= 270 + altura_botao:
                         dificuldade_selecionada = "facil"
                         run = False
                     elif 270 + altura_botao + espacamento <= y <= 270 + 2 * altura_botao + espacamento:
                         dificuldade_selecionada = "medio"
                         run = False
-                    elif 270 + 2 * (altura_botao + espacamento) <= y <= 270 + 3 * altura_botao + 2 * espacamento:
+                    elif 270 + 2*(altura_botao+espacamento) <= y <= 270 + 3*altura_botao + 2*espacamento:
                         dificuldade_selecionada = "dificil"
                         run = False
-                elif x_centro <= x <= x_centro + largura_botao:  # Check "Voltar" button
-                    if 600 <= y <= 600 + altura_botao:
-                        print("Voltar button clicked!")  # Debugging button click
-                        return menu()  # Volta para o menu principal
-    
     if dificuldade_selecionada:
-        return f"{modo}_{dificuldade_selecionada}"  # Retorna o modo e a dificuldade concatenados
+        return f"{modo}_{dificuldade_selecionada}"
     return None
 
 def iniciar_jogo(modo_completo):
@@ -154,12 +156,11 @@ def iniciar_jogo(modo_completo):
     if modo_completo is None:
         return
     
-    # Verifica se o modo inclui uma dificuldade
     if "_" in modo_completo:
         modo, dificuldade = modo_completo.split("_")
     else:
         modo = modo_completo
-        dificuldade = "medio"  # Dificuldade padrão
+        dificuldade = "medio"
     
     print(f"Iniciando jogo no modo {modo} com dificuldade {dificuldade}...")
     
@@ -170,8 +171,10 @@ def iniciar_jogo(modo_completo):
     elif modo == "cvc":
         jogo_principal(modo="cvc", dificuldade=dificuldade)
 
-if __name__ == "_main_":
-    modo_completo = menu()  # Mostra o menu inicial e captura o modo+dificuldade selecionados
+if __name__ == "__main__":
+    modo_completo = menu()
     if modo_completo:
-        iniciar_jogo(modo_completo)  # Inicia o jogo com o modo e dificuldade selecionados
+        iniciar_jogo(modo_completo)
     pygame.quit()
+    sys.exit()
+# Código finalizado com sucesso.
