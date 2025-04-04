@@ -337,6 +337,9 @@ class Tabuleiro:
                 else:
                     last.append(current)  # Marca para possível captura
 
+        return movimentos
+    
+
     def _traverse_horizontal(self, start, stop, step, cor, linha, skipped=[]):
         movimentos = {}
         last = []  # Peças que podem ser capturadas
