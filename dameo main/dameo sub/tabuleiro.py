@@ -129,16 +129,16 @@ class Tabuleiro:
 
 
         if peca.cor == LARANJA:
-            movimentos.update(self._traverse_left(linha -1, max(linha-4, -1), -1, peca.cor, esquerda))
-            movimentos.update(self._traverse_right(linha -1, max(linha-4, -1), -1, peca.cor, direita))
-            movimentos.update(self._traverse_vertical(linha - 1, max(linha-4, -1), -1, peca.cor, peca.coluna))
+            movimentos.update(self._traverse_left(linha -1, max(linha-7, -1), -1, peca.cor, esquerda))
+            movimentos.update(self._traverse_right(linha -1, max(linha-7, -1), -1, peca.cor, direita))
+            movimentos.update(self._traverse_vertical(linha - 1, max(linha-7, -1), -1, peca.cor, peca.coluna))
             movimentos.update(self._traverse_horizontal(peca.coluna - 1, -1, -1, peca.cor, linha))
             movimentos.update(self._traverse_horizontal(peca.coluna + 1, COLUNAS, 1, peca.cor, linha))
             
         if peca.cor == VERDE:
-            movimentos.update(self._traverse_left(linha +1, min(linha+4, LINHAS), 1, peca.cor, esquerda))
-            movimentos.update(self._traverse_right(linha +1, min(linha+4, LINHAS), 1, peca.cor, direita))
-            movimentos.update(self._traverse_vertical(linha + 1, min(linha+4, LINHAS), 1, peca.cor, peca.coluna))
+            movimentos.update(self._traverse_left(linha +1, min(linha+7, LINHAS), 1, peca.cor, esquerda))
+            movimentos.update(self._traverse_right(linha +1, min(linha+7, LINHAS), 1, peca.cor, direita))
+            movimentos.update(self._traverse_vertical(linha + 1, min(linha+7, LINHAS), 1, peca.cor, peca.coluna))
             movimentos.update(self._traverse_horizontal(peca.coluna - 1, -1, -1, peca.cor, linha))
             movimentos.update(self._traverse_horizontal(peca.coluna + 1, COLUNAS, 1, peca.cor, linha))
 
