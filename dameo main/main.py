@@ -63,43 +63,42 @@ def jogo_principal(modo, dificuldade="medio"):
             ai_thinking = True
             print(f"IA pensando... (cor: {game.turn}, dificuldade: {dificuldade})")
             
-            # CORREÇÃO: Verificar primeiro se há capturas obrigatórias
-            capture_moves = []
-            for peca in game.tabuleiro.get_all_peças(game.turn):
-                valid_moves = game.tabuleiro.get_valid_moves(peca)
-                for move, skip in valid_moves.items():
-                    if skip:  # Este é um movimento de captura
-                        capture_moves.append((peca, move, skip))
-            
-            if capture_moves:
-                print(f"IA: Encontradas {len(capture_moves)} capturas obrigatórias")
-                # Usar MCTS para escolher entre os movimentos de captura
-                move = mcts.get_move(game)
-            else:
-                # Sem capturas obrigatórias, usar MCTS normalmente
-                move = mcts.get_move(game)
-            
-            if move:
+            while True:  # Loop para permitir múltiplas capturas
+                move, is_capture = mcts.get_move(game)
+                
+                if not move:
+                    print("IA não encontrou movimentos válidos!")
+                    game.change_turn()
+                    break
+                    
                 peca, novo_pos, skip = move
                 print(f"IA escolheu mover de ({peca.linha}, {peca.coluna}) para ({novo_pos[0]}, {novo_pos[1]})")
                 
-                # Verificar se é um movimento válido
-                valid_moves = game.tabuleiro.get_valid_moves(peca)
-                if (novo_pos[0], novo_pos[1]) in valid_moves:
-                    # Executar o movimento
-                    game.tabuleiro.movimento(peca, novo_pos[0], novo_pos[1])
-                    if skip:
-                        game.tabuleiro.remove(skip)
-                        print(f"IA capturou peças: {len(skip)}")
+                # Executar o movimento
+                game.tabuleiro.movimento(peca, novo_pos[0], novo_pos[1])
+                if skip:
+                    game.tabuleiro.remove(skip)
+                    print(f"IA capturou peças: {len(skip)}")
+                    
+                    # Verificar se há mais capturas disponíveis com a mesma peça
+                    new_piece = game.tabuleiro.get_peça(novo_pos[0], novo_pos[1])
+                    more_captures = False
+                    valid_moves = game.tabuleiro.get_valid_moves(new_piece)
+                    
+                    for next_move, next_skip in valid_moves.items():
+                        if next_skip:  # Há mais capturas disponíveis
+                            more_captures = True
+                            break
+                    
+                    if not more_captures:  # Se não há mais capturas, termina o turno
+                        game.change_turn()
+                        break
+                else:  # Se não foi uma captura, termina o turno
                     game.change_turn()
-                else:
-                    print("ERRO: Movimento inválido escolhido pela IA!")
+                    break
                 
                 game.update(WIN)
-                pygame.time.delay(500)  # Pequeno delay para visualizar o movimento da IA
-            else:
-                print("IA não encontrou movimentos válidos!")
-                game.change_turn()
+                pygame.time.delay(500)  # Delay para visualizar o movimento
             
             ai_thinking = False
             continue
