@@ -68,36 +68,52 @@ class MCTS:
         print(f"MCTS inicializado: {iterations} iterações, {simulation_depth} profundidade, {exploration_constant} const. exploração")
 
     def get_move(self, game):
-        # Verificar se há movimentos de captura obrigatórios primeiro
         capture_moves = self._get_capture_moves(game)
         
-        # Se houver capturas obrigatórias, aplicar MCTS apenas a elas
         if capture_moves:
             print(f"IA: Encontrei {len(capture_moves)} movimentos de captura obrigatórios")
             root = Node(game)
-            # Substituir os movimentos normais por apenas movimentos de captura
             root.untried_moves = capture_moves
+            
+            # Execute MCTS para escolher o melhor movimento de captura
+            for i in range(self.iterations):
+                if i % 100 == 0:
+                    print(f"MCTS: iteração {i}/{self.iterations}")
+                
+                node = self._select(root)
+                if not node.is_terminal():
+                    node = self._expand(node)
+                    reward = self._simulate(node)
+                    self._backpropagate(node, reward)
+
+            if not root.children:
+                return None
+
+            best_child = max(root.children, key=lambda c: c.visits)
+            chosen_move = best_child.move
+            
+            # Após executar o movimento, verificar se há mais capturas disponíveis
+            peca, novo_pos, skip = chosen_move
+            return chosen_move, True  # Retorna o movimento e um flag indicando que é uma captura
         else:
             root = Node(game)
-
-        for i in range(self.iterations):
-            if i % 100 == 0:  # Log a cada 100 iterações para feedback
-                print(f"MCTS: iteração {i}/{self.iterations}")
+            
+            # MCTS normal para movimentos não-captura
+            for i in range(self.iterations):
+                if i % 100 == 0:
+                    print(f"MCTS: iteração {i}/{self.iterations}")
                 
-            node = self._select(root)
-            if not node.is_terminal():
-                node = self._expand(node)
-                reward = self._simulate(node)
-                self._backpropagate(node, reward)
+                node = self._select(root)
+                if not node.is_terminal():
+                    node = self._expand(node)
+                    reward = self._simulate(node)
+                    self._backpropagate(node, reward)
 
-        if not root.children:
-            print("MCTS: Nenhum movimento disponível")
-            return None
+            if not root.children:
+                return None, False
 
-        # Escolher o melhor movimento baseado nas visitas
-        best_child = max(root.children, key=lambda c: c.visits)
-        print(f"MCTS: Movimento escolhido com {best_child.visits} visitas e {best_child.wins} vitórias")
-        return best_child.move
+            best_child = max(root.children, key=lambda c: c.visits)
+            return best_child.move, False  # Retorna o movimento e indica que não é captura
 
     def _get_capture_moves(self, game):
         """Retorna todos os movimentos de captura disponíveis"""
@@ -153,58 +169,53 @@ class MCTS:
         while depth < self.simulation_depth:
             winner = state.tabuleiro.winner()
             if winner:
-                # Retornar 1 se o vencedor é o jogador original, 0 caso contrário
                 if (winner == 'VERDE' and original_turn == VERDE) or \
-                (winner == 'LARANJA' and original_turn == LARANJA):
+                   (winner == 'LARANJA' and original_turn == LARANJA):
                     return 1.0
                 else:
                     return 0.0
             
-            # Verificar se há uma peça que está em sequência de captura
-            capturing_piece = None
+            # Verificar movimentos obrigatórios de captura primeiro
+            capture_moves = []
             for piece in state.tabuleiro.get_all_peças(state.turn):
-                # Verificar se a peça tem capturas disponíveis
                 valid_moves = state.tabuleiro.get_valid_moves(piece)
-                captures = {move: skip for move, skip in valid_moves.items() if skip}
-                if captures:
-                    capturing_piece = piece
-                    move = random.choice(list(captures.items()))
-                    # Formato: ((linha, coluna), [peças_capturadas])
-                    novo_pos, skip = move
-                    
-                    # Aplicar movimento
-                    state.tabuleiro.movimento(capturing_piece, novo_pos[0], novo_pos[1])
-                    if skip:
-                        state.tabuleiro.remove(skip)
-                    
-                    # Verificar se mesma peça pode continuar capturando
-                    valid_moves = state.tabuleiro.get_valid_moves(capturing_piece)
-                    captures = {move: skip for move, skip in valid_moves.items() if skip}
-                    
-                    if captures:  # Se pode continuar capturando, não muda o turno
-                        continue
-                    
-                    break  # Se não pode continuar capturando, sai do loop
+                for move, skip in valid_moves.items():
+                    if skip:  # É um movimento de captura
+                        capture_moves.append((piece, move, skip))
             
-            # Se não encontrou peça capturando, escolha um movimento normal
-            if not capturing_piece:
-                # Escolher movimento aleatório
+            if capture_moves:  # Se existem capturas obrigatórias
+                # Escolher uma captura aleatória
+                piece, move, skip = random.choice(capture_moves)
+                
+                # Realizar a captura
+                state.tabuleiro.movimento(piece, move[0], move[1])
+                state.tabuleiro.remove(skip)
+                
+                # Verificar se a mesma peça pode continuar capturando
+                more_captures = False
+                new_piece = state.tabuleiro.get_peça(move[0], move[1])
+                valid_moves = state.tabuleiro.get_valid_moves(new_piece)
+                
+                for next_move, next_skip in valid_moves.items():
+                    if next_skip:  # Há mais capturas disponíveis
+                        more_captures = True
+                        break
+                
+                if more_captures:
+                    continue  # Não muda o turno, continua com a mesma peça
+            else:
+                # Se não há capturas, faz um movimento normal
                 valid_moves = self._get_valid_moves(state)
                 if not valid_moves:
                     break
-                move = random.choice(valid_moves)
-                
-                # Aplicar movimento
-                peca, novo_pos, skip = move
-                state.tabuleiro.movimento(peca, novo_pos[0], novo_pos[1])
-                if skip:
-                    state.tabuleiro.remove(skip)
+                    
+                piece, move, skip = random.choice(valid_moves)
+                state.tabuleiro.movimento(piece, move[0], move[1])
             
-            # Mudar o turno apenas quando terminar a sequência de capturas
+            # Só muda o turno se não houver mais capturas disponíveis
             state.change_turn()
             depth += 1
         
-        # Se chegou ao limite de profundidade, avaliar o estado
         return self._evaluate_state(state, original_turn)
 
     def _evaluate_state(self, state, original_turn):
