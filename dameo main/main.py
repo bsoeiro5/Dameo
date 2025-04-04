@@ -10,19 +10,13 @@ WIN = pygame.display.set_mode((LARGURA, ALTURA))
 pygame.display.set_caption('Dameo')
 
 def get_valid_moves(game):
-    """Retorna todos os movimentos válidos, priorizando capturas."""
     moves = []
-    capturas = []
-    
     for peca in game.tabuleiro.get_all_peças(game.turn):
         valid_moves = game.tabuleiro.get_valid_moves(peca)
         for move, skip in valid_moves.items():
-            if skip:
-                capturas.append((peca, move, skip))
-            else:
-                moves.append((peca, move, skip))
-    
-    return capturas if capturas else moves
+            moves.append((peca, move, skip))
+    print(f"Movimentos válidos encontrados: {len(moves)}")
+    return moves
 
 def jogo_principal(modo, dificuldade="medio"):
     WIN = pygame.display.set_mode((LARGURA, ALTURA))
@@ -30,17 +24,33 @@ def jogo_principal(modo, dificuldade="medio"):
     run = True
     ai_thinking = False
     
-    # Configurar MCTS
+    # Configurar MCTS com parâmetros de dificuldade mais significativos
     if dificuldade == "facil":
-        iterations = 500
+        iterations = 200  # Reduzido para decisões mais rápidas e menos precisas
+        simulation_depth = 5  # Profundidade de simulação menor = visão mais limitada
+        exploration_constant = 0.5  # Menor exploração, mais foco em movimentos já conhecidos
     elif dificuldade == "medio":
-        iterations = 1000
+        iterations = 800
+        simulation_depth = 15
+        exploration_constant = 1.4
     else:  # difícil
-        iterations = 2000
-        
-    mcts = MCTS(iterations=iterations)
+        iterations = 1500  # Mais iterações = decisões mais refinadas
+        simulation_depth = 25  # Olha mais longe no futuro
+        exploration_constant = 2.0  # Mais exploração para encontrar movimentos menos óbvios
+    
+    print(f"Configuração da IA: {dificuldade} - {iterations} iterações, {simulation_depth} profundidade")
+    
+    mcts = MCTS(
+        iterations=iterations,
+        simulation_depth=simulation_depth,
+        exploration_constant=exploration_constant
+    )
+
+    clock = pygame.time.Clock()
 
     while run:
+        clock.tick(60)  # Limitar a 60 FPS para não sobrecarregar o CPU
+        
         if game.verificar_fim_do_jogo():
             pygame.time.delay(3000)
             run = False
@@ -51,28 +61,50 @@ def jogo_principal(modo, dificuldade="medio"):
            (modo == "cvc" and not ai_thinking):
             
             ai_thinking = True
+            print(f"IA pensando... (cor: {game.turn}, dificuldade: {dificuldade})")
             
-            # Obter movimentos válidos
-            valid_moves = get_valid_moves(game)
+            # CORREÇÃO: Verificar primeiro se há capturas obrigatórias
+            capture_moves = []
+            for peca in game.tabuleiro.get_all_peças(game.turn):
+                valid_moves = game.tabuleiro.get_valid_moves(peca)
+                for move, skip in valid_moves.items():
+                    if skip:  # Este é um movimento de captura
+                        capture_moves.append((peca, move, skip))
             
-            if valid_moves:
-                # Escolher um movimento
-                peca, novo_pos, skip = random.choice(valid_moves)
+            if capture_moves:
+                print(f"IA: Encontradas {len(capture_moves)} capturas obrigatórias")
+                # Usar MCTS para escolher entre os movimentos de captura
+                move = mcts.get_move(game)
+            else:
+                # Sem capturas obrigatórias, usar MCTS normalmente
+                move = mcts.get_move(game)
+            
+            if move:
+                peca, novo_pos, skip = move
+                print(f"IA escolheu mover de ({peca.linha}, {peca.coluna}) para ({novo_pos[0]}, {novo_pos[1]})")
                 
-                # Executar o movimento
-                game.tabuleiro.movimento(peca, novo_pos[0], novo_pos[1])
-                if skip:
-                    game.tabuleiro.remove(skip)
-                game.change_turn()
+                # Verificar se é um movimento válido
+                valid_moves = game.tabuleiro.get_valid_moves(peca)
+                if (novo_pos[0], novo_pos[1]) in valid_moves:
+                    # Executar o movimento
+                    game.tabuleiro.movimento(peca, novo_pos[0], novo_pos[1])
+                    if skip:
+                        game.tabuleiro.remove(skip)
+                        print(f"IA capturou peças: {len(skip)}")
+                    game.change_turn()
+                else:
+                    print("ERRO: Movimento inválido escolhido pela IA!")
                 
-                # Atualizar a tela e fazer uma pausa
                 game.update(WIN)
-                pygame.time.delay(500)
+                pygame.time.delay(500)  # Pequeno delay para visualizar o movimento da IA
+            else:
+                print("IA não encontrou movimentos válidos!")
+                game.change_turn()
             
             ai_thinking = False
             continue
 
-        # Processar eventos
+        # Processar eventos do jogador
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -84,9 +116,7 @@ def jogo_principal(modo, dificuldade="medio"):
                 row, col = pos[1] // TAMANHO_QUADRADO, pos[0] // TAMANHO_QUADRADO
                 game.select(row, col)
 
-        # Atualizar a tela
         game.update(WIN)
-        pygame.time.delay(50)
 
     pygame.quit()
 
