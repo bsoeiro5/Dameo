@@ -35,7 +35,7 @@ def get_all_moves(tabuleiro, cor, game):
 
     return moves
 
-def minimax(tabuleiro, depth, alpha, beta, max_player, game):
+def alfa_beta(tabuleiro, depth, alpha, beta, max_player, game):
     if depth == 0 or tabuleiro.winner() is not None:
         return tabuleiro.heuristica(), tabuleiro
 
@@ -48,7 +48,7 @@ def minimax(tabuleiro, depth, alpha, beta, max_player, game):
             return maxEval, tabuleiro
             
         for move in moves:
-            evaluation = minimax(move, depth - 1, alpha, beta, False, game)[0]
+            evaluation = alfa_beta(move, depth - 1, alpha, beta, False, game)[0]
             if evaluation > maxEval:
                 maxEval = evaluation
                 best_move = move
@@ -65,7 +65,7 @@ def minimax(tabuleiro, depth, alpha, beta, max_player, game):
             return minEval, tabuleiro
             
         for move in moves:
-            evaluation = minimax(move, depth - 1, alpha, beta, True, game)[0]
+            evaluation = alfa_beta(move, depth - 1, alpha, beta, True, game)[0]
             if evaluation < minEval:
                 minEval = evaluation
                 best_move = move
@@ -97,3 +97,36 @@ def simular_movimento(peça, movimento, tabuleiro, game, skip):
             print(f"Erro ao simular movimento: {e}")
             return None
     return None
+
+def minimax(tabuleiro, depth, max_player, game):
+    if depth == 0 or tabuleiro.winner() is not None:
+        return tabuleiro.heuristica(), tabuleiro
+
+    if max_player:
+        maxEval = float('-inf')
+        best_move = None
+        moves = get_all_moves(tabuleiro, VERDE, game)
+        
+        if not moves:
+            return maxEval, tabuleiro
+
+        for move in moves:
+            evaluation = minimax(move, depth - 1, False, game)[0]
+            if evaluation > maxEval:
+                maxEval = evaluation
+                best_move = move
+        return maxEval, best_move
+    else:
+        minEval = float('inf')
+        best_move = None
+        moves = get_all_moves(tabuleiro, LARANJA, game)
+        
+        if not moves:
+            return minEval, tabuleiro
+
+        for move in moves:
+            evaluation = minimax(move, depth - 1, True, game)[0]
+            if evaluation < minEval:
+                minEval = evaluation
+                best_move = move
+        return minEval, best_move
