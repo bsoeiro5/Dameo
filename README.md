@@ -6,8 +6,8 @@ Trabalho realizado por:
 * Bernardo Soeiro (FCUP_IACD:202406233) 
 * Francisco Machado (FCUP_IACD:202403514)
 <div style="padding: 10px;padding-left:5%">
-<img src="fotos_md/Cienciasporto.png" style="float:left; height:75px;width:200px">
-<img src="fotos_md/Feuporto.png" style="float:left ; height:75px; padding-left:20px;width:200px">
+<img src="fotos/Cienciasporto.png" style="float:left; height:75px;width:200px">
+<img src="fotos/Feuporto.png" style="float:left ; height:75px; padding-left:20px;width:200px">
 </div>
 
 <div style="clear:both;"></div>
