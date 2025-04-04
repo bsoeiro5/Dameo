@@ -4,10 +4,7 @@ from dameo_sub.constants import LARGURA, ALTURA, TAMANHO_QUADRADO, LARANJA, VERD
 from dameo_sub.tabuleiro import Tabuleiro
 from dameo_sub.game import Game
 from mcts import MCTS
-
-# Configuração inicial da janela
-WIN = pygame.display.set_mode((LARGURA, ALTURA))
-pygame.display.set_caption('Dameo')
+from interface import menu_principal
 
 def get_valid_moves(game):
     moves = []
@@ -18,25 +15,32 @@ def get_valid_moves(game):
     print(f"Movimentos válidos encontrados: {len(moves)}")
     return moves
 
-def jogo_principal(modo, dificuldade="medio"):
+def jogo_principal(configuracoes):
+    """Função principal do jogo que recebe as configurações do menu"""
     WIN = pygame.display.set_mode((LARGURA, ALTURA))
     game = Game(WIN)
     run = True
     ai_thinking = False
     
-    # Configurar MCTS com parâmetros de dificuldade mais significativos
+    # Verificar se as configurações necessárias existem
+    if not all(key in configuracoes for key in ["modo", "tamanho", "algoritmo", "dificuldade"]):
+        print("Erro: Configurações incompletas")
+        return
+    
+    # Configurar MCTS com parâmetros de dificuldade
+    dificuldade = configuracoes["dificuldade"]
     if dificuldade == "facil":
-        iterations = 200  # Reduzido para decisões mais rápidas e menos precisas
-        simulation_depth = 5  # Profundidade de simulação menor = visão mais limitada
-        exploration_constant = 0.5  # Menor exploração, mais foco em movimentos já conhecidos
+        iterations = 200
+        simulation_depth = 5
+        exploration_constant = 0.5
     elif dificuldade == "medio":
         iterations = 800
         simulation_depth = 15
         exploration_constant = 1.4
     else:  # difícil
-        iterations = 1500  # Mais iterações = decisões mais refinadas
-        simulation_depth = 25  # Olha mais longe no futuro
-        exploration_constant = 2.0  # Mais exploração para encontrar movimentos menos óbvios
+        iterations = 1500
+        simulation_depth = 25
+        exploration_constant = 2.0
     
     print(f"Configuração da IA: {dificuldade} - {iterations} iterações, {simulation_depth} profundidade")
     
@@ -57,8 +61,8 @@ def jogo_principal(modo, dificuldade="medio"):
             break
 
         # Turno da IA
-        if (modo == "pvc" and game.turn == LARANJA and not ai_thinking) or \
-           (modo == "cvc" and not ai_thinking):
+        if (configuracoes["modo"] == "pvc" and game.turn == LARANJA and not ai_thinking) or \
+           (configuracoes["modo"] == "cvc" and not ai_thinking):
             
             ai_thinking = True
             print(f"IA pensando... (cor: {game.turn}, dificuldade: {dificuldade})")
@@ -110,7 +114,7 @@ def jogo_principal(modo, dificuldade="medio"):
                 break
 
             if event.type == pygame.MOUSEBUTTONDOWN and \
-               (modo == "pvp" or (modo == "pvc" and game.turn == VERDE)):
+               (configuracoes["modo"] == "pvp" or (configuracoes["modo"] == "pvc" and game.turn == VERDE)):
                 pos = pygame.mouse.get_pos()
                 row, col = pos[1] // TAMANHO_QUADRADO, pos[0] // TAMANHO_QUADRADO
                 game.select(row, col)
@@ -119,22 +123,9 @@ def jogo_principal(modo, dificuldade="medio"):
 
     pygame.quit()
 
-def iniciar_jogo(modo_completo):
-    if modo_completo is None:
-        return
-    
-    if "_" in modo_completo:
-        modo, dificuldade = modo_completo.split("_")
-    else:
-        modo = modo_completo
-        dificuldade = "medio"
-    
-    print(f"Iniciando jogo no modo {modo} com dificuldade {dificuldade}...")
-    jogo_principal(modo=modo, dificuldade=dificuldade)
-
 if __name__ == "__main__":
-    from interface import menu
-    modo_completo = menu()
-    if modo_completo:
-        iniciar_jogo(modo_completo)
+    # Iniciar o menu e obter configurações
+    configuracoes = menu_principal()
+    if configuracoes:
+        jogo_principal(configuracoes)
     pygame.quit()
