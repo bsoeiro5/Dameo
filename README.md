@@ -14,7 +14,7 @@ Trabalho realizado por:
 
 ******
 ### SOBRE O PROJETO 
-No segundo semestre do primeiro ano da Licenciatura em Inteligência Artificial e Ciência de Dados, na Faculdade de Ciências da Universidade do Porto, fomos desafiados a desenvolver uma Inteligência Artificial capaz de jogar jogos de tabuleiro competitivos, neste caso, um jogo para dois jogadores. O objetivo deste projeto passa por explorar algoritmos de pesquisa adversária, como o Minimax com cortes αβ, assim como variantes e extensões como o Monte Carlo Tree Search (MCTS). Estes métodos são aplicados com diferentes configurações e níveis de profundidade, sendo avaliados em função do seu desempenho em diferentes situações de jogo. 
+No segundo semestre do primeiro ano da Licenciatura em Inteligência Artificial e Ciência de Dados, na Faculdade de Ciências da Universidade do Porto, fomos desafiados a desenvolver uma Inteligência Artificial capaz de jogar jogos de tabuleiro competitivos, neste caso, um jogo para dois jogadores. O objetivo deste projeto passa por explorar algoritmos de pesquisa adversária, nomeadamente Minimax, Alfa-Beta Cuts e Monte Carlo Tree Search (MCTS). Estes métodos são aplicados com diferentes configurações e níveis de profundidade, sendo avaliados em função do seu desempenho em diferentes situações de jogo. 
 
 >Para aceder à documentação completa e formalização do problema, deve por favor abrir o ficheiro [Rush_Hour_Documentacao.docx](Rush_Hour_Documentacao.docx)
 
