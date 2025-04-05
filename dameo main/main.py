@@ -27,33 +27,48 @@ def jogo_principal(configuracoes):
         print("Erro: Configurações incompletas")
         return
     
-    # Configurar MCTS com parâmetros de dificuldade
+    # Configurar parâmetros baseado na dificuldade e algoritmo
     dificuldade = configuracoes["dificuldade"]
-    if dificuldade == "facil":
-        iterations = 200
-        simulation_depth = 5
-        exploration_constant = 0.5
-    elif dificuldade == "medio":
-        iterations = 800
-        simulation_depth = 15
-        exploration_constant = 1.4
-    else:  # difícil
-        iterations = 1500
-        simulation_depth = 25
-        exploration_constant = 2.0
+    algoritmo = configuracoes["algoritmo"]
     
-    print(f"Configuração da IA: {dificuldade} - {iterations} iterações, {simulation_depth} profundidade")
+    if algoritmo == "mcts":
+        if dificuldade == "facil":
+            iterations = 200
+            simulation_depth = 5
+            exploration_constant = 0.5
+        elif dificuldade == "medio":
+            iterations = 800
+            simulation_depth = 15
+            exploration_constant = 1.4
+        else:  # difícil
+            iterations = 1500
+            simulation_depth = 25
+            exploration_constant = 2.0
+        
+        ai = MCTS(
+            iterations=iterations,
+            simulation_depth=simulation_depth,
+            exploration_constant=exploration_constant
+        )
+        print(f"MCTS configurado: {dificuldade} - {iterations} iterações, {simulation_depth} profundidade")
     
-    mcts = MCTS(
-        iterations=iterations,
-        simulation_depth=simulation_depth,
-        exploration_constant=exploration_constant
-    )
+    # Mover variável depth para fora do if para estar acessível em todo o escopo
+    depth = 0
+    if algoritmo in ["minimax", "alphabeta"]:
+        from minimax.algoritmo import minimax, alfa_beta
+        if dificuldade == "facil":
+            depth = 2
+        elif dificuldade == "medio":
+            depth = 4
+        else:  # difícil
+            depth = 6
+            
+        print(f"{algoritmo.upper()} configurado: {dificuldade} - profundidade {depth}")
 
     clock = pygame.time.Clock()
 
     while run:
-        clock.tick(60)  # Limitar a 60 FPS para não sobrecarregar o CPU
+        clock.tick(60)
         
         if game.verificar_fim_do_jogo():
             pygame.time.delay(3000)
@@ -61,48 +76,69 @@ def jogo_principal(configuracoes):
             break
 
         # Turno da IA
-        if (configuracoes["modo"] == "pvc" and game.turn == LARANJA and not ai_thinking) or \
-           (configuracoes["modo"] == "cvc" and not ai_thinking):
-            
+        if (configuracoes["modo"] == "pvc" and game.turn == LARANJA and not ai_thinking):
             ai_thinking = True
-            print(f"IA pensando... (cor: {game.turn}, dificuldade: {dificuldade})")
+            print(f"IA pensando... (algoritmo: {algoritmo}, dificuldade: {dificuldade})")
             
-            while True:  # Loop para permitir múltiplas capturas
-                move, is_capture = mcts.get_move(game)
-                
-                if not move:
-                    print("IA não encontrou movimentos válidos!")
-                    game.change_turn()
-                    break
-                    
-                peca, novo_pos, skip = move
-                print(f"IA escolheu mover de ({peca.linha}, {peca.coluna}) para ({novo_pos[0]}, {novo_pos[1]})")
-                
-                # Executar o movimento
-                game.tabuleiro.movimento(peca, novo_pos[0], novo_pos[1])
-                if skip:
-                    game.tabuleiro.remove(skip)
-                    print(f"IA capturou peças: {len(skip)}")
-                    
-                    # Verificar se há mais capturas disponíveis com a mesma peça
-                    new_piece = game.tabuleiro.get_peça(novo_pos[0], novo_pos[1])
-                    more_captures = False
-                    valid_moves = game.tabuleiro.get_valid_moves(new_piece)
-                    
-                    for next_move, next_skip in valid_moves.items():
-                        if next_skip:  # Há mais capturas disponíveis
-                            more_captures = True
-                            break
-                    
-                    if not more_captures:  # Se não há mais capturas, termina o turno
+            if algoritmo == "mcts":
+                move, is_capture = ai.get_move(game)
+                # Processar movimento do MCTS
+                if move:
+                    peca, novo_pos, skip = move
+                    game.tabuleiro.movimento(peca, novo_pos[0], novo_pos[1])
+                    if skip:
+                        game.tabuleiro.remove(skip)
+                        new_piece = game.tabuleiro.get_peça(novo_pos[0], novo_pos[1])
+                        more_captures = any(skip for _, skip in game.tabuleiro.get_valid_moves(new_piece).items())
+                        if not more_captures:
+                            game.change_turn()
+                    else:
                         game.change_turn()
-                        break
-                else:  # Se não foi uma captura, termina o turno
+                else:
                     game.change_turn()
-                    break
-                
-                game.update(WIN)
-                pygame.time.delay(500)  # Delay para visualizar o movimento
+            else:
+                # Usar minimax ou alpha-beta
+                try:
+                    print(f"\nIniciando {algoritmo}...")
+                    print(f"Estado atual do tabuleiro antes da IA:")
+                    print(f"Peças verdes: {game.tabuleiro.verdes_left}")
+                    print(f"Peças laranjas: {game.tabuleiro.laranjas_left}")
+                    
+                    if algoritmo == "minimax":
+                        score, best_board = minimax(game.tabuleiro, depth, False, game)
+                        print(f"Alpha-beta retornou score: {score}")
+                    
+                        if best_board:
+                            print("Tabuleiro válido retornado, aplicando movimento...")
+                            # Verificar estado antes do movimento
+                            old_orange = game.tabuleiro.laranjas_left
+                            game.ai_move(best_board)
+                            # Verificar estado após o movimento
+                            new_orange = game.tabuleiro.laranjas_left
+                            print(f"Peças laranjas antes: {old_orange}, depois: {new_orange}")
+                        else:
+                            print("IA não encontrou movimentos válidos!")
+                            game.change_turn()
+                    else:  # alphabeta
+                        score, best_board = minimax(game.tabuleiro, depth, float('-inf'), float('inf'), False, game)
+                        print(f"Alpha-beta retornou score: {score}")
+                    
+                        if best_board:
+                            print("Tabuleiro válido retornado, aplicando movimento...")
+                            # Verificar estado antes do movimento
+                            old_orange = game.tabuleiro.laranjas_left
+                            game.ai_move(best_board)
+                            # Verificar estado após o movimento
+                            new_orange = game.tabuleiro.laranjas_left
+                            print(f"Peças laranjas antes: {old_orange}, depois: {new_orange}")
+                        else:
+                            print("IA não encontrou movimentos válidos!")
+                            game.change_turn()
+                except Exception as e:
+                    print(f"Erro ao executar {algoritmo}: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    game.change_turn()
             
             ai_thinking = False
             continue
