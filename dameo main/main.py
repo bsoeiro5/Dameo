@@ -121,7 +121,7 @@ def jogo_principal(configuracoes):
                             game.change_turn()
                     else:  # alphabeta
                         score, best_board = minimax(game.tabuleiro, depth, float('-inf'), float('inf'), False, game)
-                        print(f"Alpha-beta retornou score: {score}")
+                        print(f"Minimax retornou score: {score}")
                     
                         if best_board:
                             print("Tabuleiro válido retornado, aplicando movimento...")
