@@ -171,8 +171,13 @@ class Game:
         return self.tabuleiro
 
     def ai_move(self, tabuleiro):
-        self.tabuleiro = tabuleiro
-        self.change_turn()
+        """Atualiza o tabuleiro com o movimento da IA"""
+        if tabuleiro:
+            self.tabuleiro = tabuleiro
+            print("Movimento da IA aplicado com sucesso")
+            self.change_turn()
+        else:
+            print("Erro: Tabuleiro inválido recebido pela IA")
     
     def get_valid_moves_for_piece(self, piece):
         """Retorna todos os movimentos válidos para uma peça específica."""
