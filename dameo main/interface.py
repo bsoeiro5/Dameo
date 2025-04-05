@@ -1,244 +1,186 @@
 import pygame
-import sys
-from dameo_sub.constants import LARGURA, ALTURA, BRANCO, CASTANHO, PRETO
-from regras import regras
+from .constants import VERDE, LARANJA, TAMANHO_QUADRADO, ALTURA, AZUL, LINHAS, COLUNAS, LARGURA
+from .tabuleiro import Tabuleiro  # Ensure Tabuleiro is correctly imported and implemented
 
-# Inicializar o Pygame
-pygame.init()
+class Game:
+    def __init__(self, win):
+        self._init()
+        self.win = win
+        print("Machado morto")
 
-# Criar a janela
-WIN = pygame.display.set_mode((LARGURA, ALTURA))
-pygame.display.set_caption("Dameo - Menu Inicial")
+    def _init(self):
+        self.selected = None
+        self.tabuleiro = Tabuleiro()  # Ensure Tabuleiro is properly initialized and not returning None
+        self.turn = VERDE
+        self.valid_moves = {}
+        self.must_capture = False
+        self.capturing_piece = None  # Armazena a peça que está capturando
 
-# Carregar imagem de fundo
-FUNDO = pygame.image.load("assets/background.png")
-FUNDO = pygame.transform.scale(FUNDO, (LARGURA, ALTURA))
 
-# Definir fontes
-fonte = pygame.font.Font(None, 50)
-fonte_subtitulo = pygame.font.Font(None, 40)
-
-def desenhar_botao(win, texto, cor, x, y, largura, altura, selecionado=False):
-    """Desenha um botão na tela com texto centralizado."""
-    # Desenha borda mais grossa se selecionado
-    borda = 4 if selecionado else 2
-    pygame.draw.rect(win, PRETO, (x-borda, y-borda, largura+2*borda, altura+2*borda))
-    pygame.draw.rect(win, cor, (x, y, largura, altura))
-    texto_render = fonte.render(texto, True, BRANCO)
-    win.blit(
-        texto_render,
-        (
-            x + (largura - texto_render.get_width()) // 2,
-            y + (altura - texto_render.get_height()) // 2,
-        ),
-    )
-
-def desenhar_botao_voltar(win, x, y, largura, altura):
-    """Desenha o botão voltar."""
-    pygame.draw.rect(win, PRETO, (x-2, y-2, largura+4, altura+4))
-    pygame.draw.rect(win, CASTANHO, (x, y, largura, altura))
-    texto_voltar = fonte_subtitulo.render("Voltar", True, BRANCO)
-    win.blit(
-        texto_voltar,
-        (
-            x + (largura - texto_voltar.get_width()) // 2,
-            y + (altura - texto_voltar.get_height()) // 2,
-        ),
-    )
-
-def menu_principal():
-    """Menu principal com opções Jogar e Regras."""
-    run = True
-    while run:
-        WIN.blit(FUNDO, (0, 0))
-        
-        titulo = fonte.render("Bem-vindo ao Dameo!", True, BRANCO)
-        WIN.blit(titulo, ((LARGURA - titulo.get_width()) // 2, 50))
-        
-        largura_botao = 300
-        altura_botao = 60
-        x_centro = 100  # Changed from centered to left side
-        
-        desenhar_botao(WIN, "Jogar", CASTANHO, x_centro, 300, largura_botao, altura_botao)
-        desenhar_botao(WIN, "Regras", CASTANHO, x_centro, 400, largura_botao, altura_botao)
-        
-        pygame.display.update()
-        
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return None
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                x, y = pygame.mouse.get_pos()
-                if x_centro <= x <= x_centro + largura_botao:
-                    if 300 <= y <= 300 + altura_botao:
-                        return menu_tamanho_tabuleiro()
-                    elif 400 <= y <= 400 + altura_botao:
-                        regras(WIN)
-
-def menu_tamanho_tabuleiro():
-    """Menu de seleção do tamanho do tabuleiro."""
-    run = True
-    selecionado = None
-    voltar_largura = 120
-    voltar_altura = 50
-    voltar_x = (LARGURA - voltar_largura) // 2  # Centered horizontally
-    voltar_y = ALTURA - voltar_altura - 20  # 20 pixels from bottom
+    def winner(self):
+        return self.tabuleiro.winner()
     
-    while run:
-        WIN.blit(FUNDO, (0, 0))
-        
-        # Desenha o botão voltar
-        desenhar_botao_voltar(WIN, voltar_x, voltar_y, voltar_largura, voltar_altura)
-        
-        titulo = fonte.render("Selecione o Tamanho do Tabuleiro", True, BRANCO)
-        WIN.blit(titulo, ((LARGURA - titulo.get_width()) // 2, 50))
-        
-        largura_botao = 300
-        altura_botao = 60
-        x_centro = 100  # Changed from centered to left side
-        
-        desenhar_botao(WIN, "6x6", CASTANHO, x_centro, 200, largura_botao, altura_botao, selecionado == "6x6")
-        desenhar_botao(WIN, "8x8", CASTANHO, x_centro, 300, largura_botao, altura_botao, selecionado == "8x8")
-        desenhar_botao(WIN, "12x12", CASTANHO, x_centro, 400, largura_botao, altura_botao, selecionado == "12x12")
-        
-        if selecionado:  # Só mostra o botão continuar se houver seleção
-            desenhar_botao(WIN, "Continuar", CASTANHO, x_centro, 500, largura_botao, altura_botao)
-        
+    def update(self,win):
+        self.tabuleiro.desenhar(win)
+        self.draw_valid_moves(self.valid_moves)
         pygame.display.update()
-        
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return None
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                return menu_principal()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                x, y = pygame.mouse.get_pos()
-                # Verifica se clicou no botão "Voltar"
-                if voltar_x <= x <= voltar_x + voltar_largura and voltar_y <= y <= voltar_y + voltar_altura:
-                    return menu_principal()
-                if x_centro <= x <= x_centro + largura_botao:
-                    if 200 <= y <= 200 + altura_botao:
-                        selecionado = "6x6"
-                    elif 300 <= y <= 300 + altura_botao:
-                        selecionado = "8x8"
-                    elif 400 <= y <= 400 + altura_botao:
-                        selecionado = "12x12"
-                    elif 500 <= y <= 500 + altura_botao and selecionado:
-                        return menu_algoritmo(selecionado)
 
-def menu_algoritmo(tamanho):
-    """Menu de seleção do algoritmo."""
-    run = True
-    selecionado = None
-    voltar_largura = 120
-    voltar_altura = 50
-    voltar_x = (LARGURA - voltar_largura) // 2  # Centered horizontally
-    voltar_y = ALTURA - voltar_altura - 20  # 20 pixels from bottom
+    def reset(self):
+        self._init()
+
+    def select(self, linha, coluna):
+        # Se há uma peça em processo de captura múltipla
+        if self.capturing_piece:
+            # Verifica se o clique foi em um movimento válido
+            if (linha, coluna) in self.valid_moves:
+                return self._process_move(linha, coluna)
+            else:
+                # Se clicou em outro lugar, mantém a seleção da peça que está capturando
+                return False
+        
+        peça = self.tabuleiro.get_peça(linha, coluna)
+        
+        # Verifica se há capturas obrigatórias
+        self._check_capture_requirements()
+        
+        # Só permite selecionar peça se for do jogador atual
+        if peça != 0 and peça.cor == self.turn:
+            # Se há capturas obrigatórias, só permite selecionar peças que podem capturar
+            if self.must_capture:
+                self.valid_moves = self.tabuleiro.get_valid_moves(peça)
+                self.valid_moves = {move: skipped for move, skipped in self.valid_moves.items() if skipped}
+                
+                if self.valid_moves:  # Se esta peça pode capturar
+                    self.selected = peça
+                    return True
+                return False
+            else:
+                # Sem capturas obrigatórias, seleciona normalmente
+                self.selected = peça
+                self.valid_moves = self.tabuleiro.get_valid_moves(peça)
+                return True
+        
+        # Se já tem uma peça selecionada e clicou em um movimento válido
+        if self.selected and (linha, coluna) in self.valid_moves:
+            return self._process_move(linha, coluna)
+        
+        # Se clicou em uma posição inválida, apenas limpa a seleção
+        self.selected = None
+        self.valid_moves = {}
+        return False
+
+    def _process_move(self, linha, coluna):
+        if (linha, coluna) in self.valid_moves:
+            peça = self.selected
+            skipped = self.valid_moves[(linha, coluna)]
+            
+            # Faz o movimento
+            self.tabuleiro.movimento(peça, linha, coluna)
+            
+            if skipped:  # Se houve captura
+                self.tabuleiro.remove(skipped)
+                
+                # Verifica se há mais capturas disponíveis
+                self.valid_moves = self.tabuleiro.get_valid_moves(peça)
+                # Filtra apenas movimentos de captura
+                self.valid_moves = {move: skip for move, skip in self.valid_moves.items() if skip}
+                
+                if self.valid_moves:  # Se pode continuar capturando
+                    self.capturing_piece = peça
+                    self.selected = peça
+                    self.must_capture = True
+                    return True
+            
+            # Fim do turno
+            self._end_turn()
+            return True
+        
+        return False
+
+    def _end_turn(self):
+        self.selected = None
+        self.capturing_piece = None
+        self.valid_moves = {}
+        self.must_capture = False
+        self.turn = LARANJA if self.turn == VERDE else VERDE
+
+    def _check_capture_requirements(self):
+        self.must_capture = False
+        # Verifica se há capturas obrigatórias
+        for linha in range(LINHAS):
+            for coluna in range(COLUNAS):
+                peça = self.tabuleiro.get_peça(linha, coluna)
+                if peça != 0 and peça.cor == self.turn:
+                    moves = self.tabuleiro.get_valid_moves(peça)
+                    if any(skipped for skipped in moves.values() if skipped):
+                        self.must_capture = True
+                        return
+
+
+    def draw_valid_moves(self, movimentos):
+        for movimento in movimentos:
+            linha, coluna = movimento
+            pygame.draw.circle(self.win, AZUL, (coluna * TAMANHO_QUADRADO + TAMANHO_QUADRADO//2, linha * TAMANHO_QUADRADO + TAMANHO_QUADRADO//2), 15)
+
+    def display_winner_message(self, winner):
+        pygame.font.init()
+        font = pygame.font.Font(None, 48)  # Usa a fonte padrão do pygame
+        message = "Empate!" if winner is None else f"O jogador {winner} ganhou!"
+        text = font.render(message, True, (0, 0, 255))  # Cor azul para a mensagem
+        text_rect = text.get_rect(center=(LARGURA//2, ALTURA//2))
+        self.win.blit(text, text_rect)
+        pygame.display.update()
+
+    def verificar_fim_do_jogo(self):
+        # Verifica se há um vencedor
+        vencedor = self.winner()
+        
+        if vencedor:
+            self.display_winner_message(vencedor)  # Exibe a mensagem de vencedor
+            return True
+        
+        # Verifica se o jogo terminou em empate (nenhum jogador pode se mover)
+        verde_moves = any(
+            self.tabuleiro.get_valid_moves(self.tabuleiro.get_peça(linha, coluna))
+            for linha in range(LINHAS)
+            for coluna in range(COLUNAS)
+            if self.tabuleiro.get_peça(linha, coluna) != 0 and self.tabuleiro.get_peça(linha, coluna).cor == VERDE
+        )
+        laranja_moves = any(
+            self.tabuleiro.get_valid_moves(self.tabuleiro.get_peça(linha, coluna))
+            for linha in range(LINHAS)
+            for coluna in range(COLUNAS)
+            if self.tabuleiro.get_peça(linha, coluna) != 0 and self.tabuleiro.get_peça(linha, coluna).cor == LARANJA
+        )
+        
+        if not verde_moves and not laranja_moves:
+            self.display_winner_message(None)  # Exibe mensagem de empate
+            return True
+        
+        return False
     
-    while run:
-        WIN.blit(FUNDO, (0, 0))
-        
-        # Desenha o botão voltar
-        desenhar_botao_voltar(WIN, voltar_x, voltar_y, voltar_largura, voltar_altura)
-        
-        titulo = fonte.render("Selecione o Algoritmo", True, BRANCO)
-        WIN.blit(titulo, ((LARGURA - titulo.get_width()) // 2, 50))
-        
-        largura_botao = 300  # Changed from 400 to 300 to match other buttons
-        altura_botao = 60
-        x_centro = 100  # Changed from 35 to 100 to align with other buttons
-        
-        # Desenha os botões com destaque para o selecionado
-        desenhar_botao(WIN, "MCTS", CASTANHO, x_centro, 200, largura_botao, altura_botao, selecionado == "mcts")
-        desenhar_botao(WIN, "Minimax", CASTANHO, x_centro, 300, largura_botao, altura_botao, selecionado == "minimax")
-        desenhar_botao(WIN, "Alpha-Beta", CASTANHO, x_centro, 400, largura_botao, altura_botao, selecionado == "alphabeta")
-        
-        if selecionado:  # Só mostra o botão continuar se houver seleção
-            desenhar_botao(WIN, "Continuar", CASTANHO, x_centro, 500, largura_botao, altura_botao)
-        
-        pygame.display.update()
-        
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return None
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                return menu_tamanho_tabuleiro()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                x, y = pygame.mouse.get_pos()
-                # Verifica se clicou no botão "Voltar"
-                if voltar_x <= x <= voltar_x + voltar_largura and voltar_y <= y <= voltar_y + voltar_altura:
-                    return menu_tamanho_tabuleiro()
-                if x_centro <= x <= x_centro + largura_botao:
-                    if 200 <= y <= 200 + altura_botao:
-                        selecionado = "mcts"
-                    elif 300 <= y <= 300 + altura_botao:
-                        selecionado = "minimax"
-                    elif 400 <= y <= 400 + altura_botao:
-                        selecionado = "alphabeta"
-                    elif 500 <= y <= 500 + altura_botao and selecionado:
-                        return menu_dificuldade(tamanho, selecionado)
-
-def menu_dificuldade(tamanho, algoritmo):
-    """Menu de seleção da dificuldade."""
-    run = True
-    selecionado = None
-    voltar_largura = 120
-    voltar_altura = 50
-    voltar_x = (LARGURA - voltar_largura) // 2  # Centered horizontally
-    voltar_y = ALTURA - voltar_altura - 20  # 20 pixels from bottom
+    def change_turn(self):
+        self.valid_moves = {}
+        if self.turn == VERDE:
+            self.turn = LARANJA
+        else:
+            self.turn = VERDE
+        print(f"Turno mudado para: {self.turn}")
     
-    while run:
-        WIN.blit(FUNDO, (0, 0))
-        
-        # Desenha o botão voltar
-        desenhar_botao_voltar(WIN, voltar_x, voltar_y, voltar_largura, voltar_altura)
-        
-        titulo = fonte.render("Selecione a Dificuldade", True, BRANCO)
-        WIN.blit(titulo, ((LARGURA - titulo.get_width()) // 2, 50))
-        
-        largura_botao = 300
-        altura_botao = 60
-        x_centro = 100
-        
-        # Desenha os botões com destaque para o selecionado
-        desenhar_botao(WIN, "Fácil", CASTANHO, x_centro, 200, largura_botao, altura_botao, selecionado == "facil")
-        desenhar_botao(WIN, "Médio", CASTANHO, x_centro, 300, largura_botao, altura_botao, selecionado == "medio")
-        desenhar_botao(WIN, "Difícil", CASTANHO, x_centro, 400, largura_botao, altura_botao, selecionado == "dificil")
-        
-        if selecionado:  # Só mostra o botão continuar se houver seleção
-            desenhar_botao(WIN, "Continuar", CASTANHO, x_centro, 500, largura_botao, altura_botao)
-        
-        pygame.display.update()
-        
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return None
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                return menu_algoritmo(tamanho)
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                x, y = pygame.mouse.get_pos()
-                # Verifica se clicou no botão "Voltar"
-                if voltar_x <= x <= voltar_x + voltar_largura and voltar_y <= y <= voltar_y + voltar_altura:
-                    return menu_algoritmo(tamanho)
-                if x_centro <= x <= x_centro + largura_botao:
-                    if 200 <= y <= 200 + altura_botao:
-                        selecionado = "facil"
-                    elif 300 <= y <= 300 + altura_botao:
-                        selecionado = "medio"
-                    elif 400 <= y <= 400 + altura_botao:
-                        selecionado = "dificil"
-                    elif 500 <= y <= 500 + altura_botao and selecionado:
-                        return iniciar_jogo(tamanho, algoritmo, selecionado)
+    def get_tabuleiro(self):
+        return self.tabuleiro
 
-def iniciar_jogo(tamanho, algoritmo, dificuldade):
-    """Retorna as configurações selecionadas."""
-    print(f"Configurações selecionadas: Tamanho {tamanho}, Algoritmo {algoritmo}, Dificuldade {dificuldade}")
-    return {
-        "tamanho": tamanho, 
-        "algoritmo": algoritmo, 
-        "dificuldade": dificuldade,
-        "modo": "pvc"  # Player vs Computer mode
-    }
-
-if __name__ == "__main__":
-    print("Please run the game through main.py")
+    def ai_move(self, tabuleiro):
+        """Atualiza o tabuleiro com o movimento da IA"""
+        if tabuleiro:
+            self.tabuleiro = tabuleiro
+            print("Movimento da IA aplicado com sucesso")
+            self.change_turn()
+        else:
+            print("Erro: Tabuleiro inválido recebido pela IA")
+    
+    def get_valid_moves_for_piece(self, piece):
+        """Retorna todos os movimentos válidos para uma peça específica."""
+        if piece != 0 and piece.cor == self.turn:
+            return self.tabuleiro.get_valid_moves(piece)
+        return {}
