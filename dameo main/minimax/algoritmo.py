@@ -5,35 +5,33 @@ from dameo_sub.tabuleiro import Tabuleiro
 
 def get_all_moves(tabuleiro, cor, game):
     moves = []
-    capture_moves = []  # Lista separada para movimentos de captura
+    capture_moves = []
     
-    # Primeiro, verifica se existem capturas disponíveis
     for piece in tabuleiro.get_all_peças(cor):
         valid_moves = tabuleiro.get_valid_moves(piece)
         for move, skip in valid_moves.items():
-            if skip:  # Se é um movimento de captura
-                temp_board = deepcopy(tabuleiro)
-                temp_piece = temp_board.get_peça(piece.linha, piece.coluna)
-                new_board = simular_movimento(temp_piece, move, temp_board, game, skip)
-                if new_board:
-                    capture_moves.append(new_board)
-
-    # Se houver capturas disponíveis, retorna apenas elas
+            # Verifica se o movimento não é para a mesma posição
+            if (move[0] != piece.linha or move[1] != piece.coluna):
+                if skip:  # This is a capture move
+                    temp_board = deepcopy(tabuleiro)
+                    temp_piece = temp_board.get_peça(piece.linha, piece.coluna)
+                    new_board = simular_movimento(temp_piece, move, temp_board, game, skip)
+                    if new_board:
+                        capture_moves.append((temp_piece, move, skip, new_board))
+                else:  # Regular move
+                    temp_board = deepcopy(tabuleiro)
+                    temp_piece = temp_board.get_peça(piece.linha, piece.coluna)
+                    new_board = simular_movimento(temp_piece, move, temp_board, game, None)
+                    if new_board:
+                        moves.append((temp_piece, move, None, new_board))
+    
+    # Retorna movimentos de captura se existirem, senão retorna movimentos normais
     if capture_moves:
-        return capture_moves
-
-    # Se não houver capturas, retorna movimentos normais
-    for piece in tabuleiro.get_all_peças(cor):
-        valid_moves = tabuleiro.get_valid_moves(piece)
-        for move, skip in valid_moves.items():
-            if not skip:  # Apenas movimentos sem captura
-                temp_board = deepcopy(tabuleiro)
-                temp_piece = temp_board.get_peça(piece.linha, piece.coluna)
-                new_board = simular_movimento(temp_piece, move, temp_board, game, skip)
-                if new_board:
-                    moves.append(new_board)
-
-    return moves
+        
+        return capture_moves[:10]  # Limita para evitar explosão combinatória
+    
+    
+    return moves[:15]  # Limita para evitar explosão combinatória
 
 def alfa_beta(tabuleiro, depth, alpha, beta, max_player, game):
     if depth == 0 or tabuleiro.winner() is not None:
@@ -47,7 +45,7 @@ def alfa_beta(tabuleiro, depth, alpha, beta, max_player, game):
         if not moves:  # Se não houver movimentos possíveis
             return maxEval, tabuleiro
             
-        for move in moves:
+        for _, _, _, move in moves:
             evaluation = alfa_beta(move, depth - 1, alpha, beta, False, game)[0]
             if evaluation > maxEval:
                 maxEval = evaluation
@@ -64,7 +62,7 @@ def alfa_beta(tabuleiro, depth, alpha, beta, max_player, game):
         if not moves:  # Se não houver movimentos possíveis
             return minEval, tabuleiro
             
-        for move in moves:
+        for _, _, _, move in moves:
             evaluation = alfa_beta(move, depth - 1, alpha, beta, True, game)[0]
             if evaluation < minEval:
                 minEval = evaluation
@@ -107,10 +105,10 @@ def minimax(tabuleiro, depth, max_player, game):
         best_move = None
         moves = get_all_moves(tabuleiro, VERDE, game)
         
-        if not moves:
+        if not moves:  # Se não houver movimentos possíveis
             return maxEval, tabuleiro
-
-        for move in moves:
+            
+        for _, _, _, move in moves:
             evaluation = minimax(move, depth - 1, False, game)[0]
             if evaluation > maxEval:
                 maxEval = evaluation
@@ -121,10 +119,10 @@ def minimax(tabuleiro, depth, max_player, game):
         best_move = None
         moves = get_all_moves(tabuleiro, LARANJA, game)
         
-        if not moves:
+        if not moves:  # Se não houver movimentos possíveis
             return minEval, tabuleiro
-
-        for move in moves:
+            
+        for _, _, _, move in moves:
             evaluation = minimax(move, depth - 1, True, game)[0]
             if evaluation < minEval:
                 minEval = evaluation
