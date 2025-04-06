@@ -52,7 +52,6 @@ def jogo_principal(configuracoes):
         )
         print(f"MCTS configurado: {dificuldade} - {iterations} iterações, {simulation_depth} profundidade")
     
-    # Mover variável depth para fora do if para estar acessível em todo o escopo
     depth = 0
     if algoritmo in ["minimax", "alphabeta"]:
         from minimax.algoritmo import minimax, alfa_beta
@@ -146,8 +145,19 @@ def jogo_principal(configuracoes):
         # Processar eventos do jogador
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
-                break
+                pygame.quit()
+                return None
+                
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    # Retornar ao menu principal e iniciar novo jogo com novas configurações
+                    new_config = menu_principal()
+                    if new_config:
+                        pygame.quit()
+                        return new_config  # Retorna as novas configurações
+                    else:
+                        pygame.quit()
+                        return None
 
             if event.type == pygame.MOUSEBUTTONDOWN and \
                (configuracoes["modo"] == "pvp" or (configuracoes["modo"] == "pvc" and game.turn == VERDE)):
@@ -157,11 +167,10 @@ def jogo_principal(configuracoes):
 
         game.update(WIN)
 
-    pygame.quit()
+    return menu_principal()  # Quando o jogo termina, retorna ao menu principal
 
 if __name__ == "__main__":
-    # Iniciar o menu e obter configurações
     configuracoes = menu_principal()
-    if configuracoes:
-        jogo_principal(configuracoes)
+    while configuracoes:  # Loop principal que permite reiniciar o jogo
+        configuracoes = jogo_principal(configuracoes)
     pygame.quit()
