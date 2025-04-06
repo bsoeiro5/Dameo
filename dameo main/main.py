@@ -100,7 +100,7 @@ def jogo_principal(configuracoes):
                         game.change_turn()
                 else:
                     game.change_turn()
-            # In main.py, modify the random AI section:
+          
 
             elif algoritmo == "random":
                 # Implementação do algoritmo Random com prioridade para capturas
