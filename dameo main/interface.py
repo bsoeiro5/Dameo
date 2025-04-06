@@ -60,7 +60,7 @@ def menu_principal():
         
         largura_botao = 300
         altura_botao = 60
-        x_centro = 100  # Changed from centered to left side
+        x_centro = 100  
         
         desenhar_botao(WIN, "Jogar", CASTANHO, x_centro, 300, largura_botao, altura_botao)
         desenhar_botao(WIN, "Regras", CASTANHO, x_centro, 400, largura_botao, altura_botao)
@@ -84,8 +84,8 @@ def menu_tamanho_tabuleiro():
     selecionado = None
     voltar_largura = 120
     voltar_altura = 50
-    voltar_x = (LARGURA - voltar_largura) // 2  # Centered horizontally
-    voltar_y = ALTURA - voltar_altura - 20  # 20 pixels from bottom
+    voltar_x = (LARGURA - voltar_largura) // 2
+    voltar_y = ALTURA - voltar_altura - 20 
     
     while run:
         WIN.blit(FUNDO, (0, 0))
@@ -98,7 +98,7 @@ def menu_tamanho_tabuleiro():
         
         largura_botao = 300
         altura_botao = 60
-        x_centro = 100  # Changed from centered to left side
+        x_centro = 100 
         
         desenhar_botao(WIN, "6x6", CASTANHO, x_centro, 200, largura_botao, altura_botao, selecionado == "6x6")
         desenhar_botao(WIN, "8x8", CASTANHO, x_centro, 300, largura_botao, altura_botao, selecionado == "8x8")
@@ -127,7 +127,7 @@ def menu_tamanho_tabuleiro():
                     elif 400 <= y <= 400 + altura_botao:
                         selecionado = "12x12"
                     elif 500 <= y <= 500 + altura_botao and selecionado:
-                        return menu_modo(selecionado)  # Changed from menu_algoritmo to menu_modo
+                        return menu_modo(selecionado)  
 
 def menu_algoritmo(tamanho, modo):
     """Menu de seleção do algoritmo."""
@@ -135,8 +135,8 @@ def menu_algoritmo(tamanho, modo):
     selecionado = None
     voltar_largura = 120
     voltar_altura = 50
-    voltar_x = (LARGURA - voltar_largura) // 2  # Centered horizontally
-    voltar_y = ALTURA - voltar_altura - 20  # 20 pixels from bottom
+    voltar_x = (LARGURA - voltar_largura) // 2  
+    voltar_y = ALTURA - voltar_altura - 20  
     
     while run:
         WIN.blit(FUNDO, (0, 0))
@@ -147,9 +147,9 @@ def menu_algoritmo(tamanho, modo):
         titulo = fonte.render("Selecione o Algoritmo", True, BRANCO)
         WIN.blit(titulo, ((LARGURA - titulo.get_width()) // 2, 50))
         
-        largura_botao = 300  # Changed from 400 to 300 to match other buttons
+        largura_botao = 300  
         altura_botao = 60
-        x_centro = 100  # Changed from 35 to 100 to align with other buttons
+        x_centro = 100  
         
         # Desenha os botões com destaque para o selecionado
         desenhar_botao(WIN, "MCTS", CASTANHO, x_centro, 200, largura_botao, altura_botao, selecionado == "mcts")
@@ -182,7 +182,6 @@ def menu_algoritmo(tamanho, modo):
                     elif 500 <= y <= 500 + altura_botao:
                         selecionado = "random"
                     elif 600 <= y <= 600 + altura_botao and selecionado:
-                        # For random, bypass difficulty selection
                         if selecionado == "random":
                             return iniciar_jogo(tamanho, selecionado, None, modo)
                         else:
@@ -195,8 +194,8 @@ def menu_dificuldade(tamanho, algoritmo, modo):
     selecionado = None
     voltar_largura = 120
     voltar_altura = 50
-    voltar_x = (LARGURA - voltar_largura) // 2  # Centered horizontally
-    voltar_y = ALTURA - voltar_altura - 20  # 20 pixels from bottom
+    voltar_x = (LARGURA - voltar_largura) // 2 
+    voltar_y = ALTURA - voltar_altura - 20  
     
     while run:
         WIN.blit(FUNDO, (0, 0))
@@ -251,7 +250,7 @@ def menu_modo(tamanho):
     voltar_y = ALTURA - voltar_altura - 20
     
     # Criar fonte ainda menor para os botões de modo
-    fonte_modo = pygame.font.Font(None, 35)  # Reduced from 40 to 35
+    fonte_modo = pygame.font.Font(None, 35)
     
     while run:
         WIN.blit(FUNDO, (0, 0))
