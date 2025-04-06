@@ -43,6 +43,7 @@ class Node:
         return len(self.untried_moves) == 0
 
     def _get_untried_moves(self):
+        # CORREÇÃO: Verificar se há movimentos de captura obrigatórios primeiro
         moves = []
         capture_moves = []
         
@@ -64,6 +65,8 @@ class MCTS:
         self.iterations = iterations
         self.simulation_depth = simulation_depth
         self.exploration_constant = exploration_constant
+        self.nodes_expanded = 0
+        self.simulations_run = 0
         print(f"MCTS inicializado: {iterations} iterações, {simulation_depth} profundidade, {exploration_constant} const. exploração")
 
     def get_move(self, game):
@@ -133,6 +136,7 @@ class MCTS:
         return node
 
     def _expand(self, node):
+        self.nodes_expanded += 1
         if node.untried_moves:
             move = random.choice(node.untried_moves)
             new_state = self._copy_game_state(node.game_state)
@@ -161,6 +165,7 @@ class MCTS:
         return node
 
     def _simulate(self, node):
+        self.simulations_run += 1
         state = self._copy_game_state(node.game_state)
         depth = 0
         original_turn = state.turn
