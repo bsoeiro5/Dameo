@@ -43,7 +43,6 @@ class Node:
         return len(self.untried_moves) == 0
 
     def _get_untried_moves(self):
-        # CORREÇÃO: Verificar se há movimentos de captura obrigatórios primeiro
         moves = []
         capture_moves = []
         
