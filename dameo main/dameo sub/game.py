@@ -1,6 +1,6 @@
 import pygame
 from .constants import VERDE, LARANJA, TAMANHO_QUADRADO, ALTURA, AZUL, LINHAS, COLUNAS, LARGURA
-from .tabuleiro import Tabuleiro  # Ensure Tabuleiro is correctly imported and implemented
+from .tabuleiro import Tabuleiro 
 
 class Game:
     def __init__(self, win):
@@ -10,11 +10,11 @@ class Game:
 
     def _init(self):
         self.selected = None
-        self.tabuleiro = Tabuleiro()  # Ensure Tabuleiro is properly initialized and not returning None
+        self.tabuleiro = Tabuleiro() 
         self.turn = VERDE
         self.valid_moves = {}
         self.must_capture = False
-        self.capturing_piece = None  # Armazena a peça que está capturando
+        self.capturing_piece = None  # Armazena a peça que está a capturar
 
 
     def winner(self):
