@@ -71,12 +71,13 @@ def jogo_principal(configuracoes):
         nos_expandidos_minimax = 0
         nos_expandidos_alphabeta = 0
         
+        # Ajustar profundidade para melhor qualidade das jogadas
         if dificuldade == "facil":
             depth = 2
         elif dificuldade == "medio":
             depth = 3
         else:  # difícil
-            depth = 4
+            depth = 7  
             
         print(f"{algoritmo.upper()} configurado: {dificuldade} - profundidade {depth}")
         metrics.set_algorithm_info(algoritmo.upper(), dificuldade, depth)
@@ -154,44 +155,73 @@ def jogo_principal(configuracoes):
                     old_green = game.tabuleiro.verdes_left
                     old_orange = game.tabuleiro.laranjas_left
                     
-                    if algoritmo == "minimax":
-                        # Resetar contador global
-                        from minimax.algoritmo import nos_expandidos_minimax
-                        nos_expandidos_minimaxm= 0
+                    # Verifica se há capturas obrigatórias primeiro
+                    capturas_obrigatorias = []
+                    for piece in game.tabuleiro.get_all_peças(LARANJA):
+                        valid_moves = game.tabuleiro.get_valid_moves(piece)
+                        for move, skip in valid_moves.items():
+                            if skip:
+                                capturas_obrigatorias.append((piece, move, skip))
+                    
+                    if capturas_obrigatorias:
+                        print(f"Encontradas {len(capturas_obrigatorias)} capturas obrigatórias")
+                        # Escolher a melhor captura (poderia ser mais sofisticado)
+                        peca, move, skip = capturas_obrigatorias[0]
+                        game.tabuleiro.movimento(peca, move[0], move[1])
+                        game.tabuleiro.remove(skip)
                         
-                        score, best_board = minimax(game.tabuleiro, depth, False, game)
-                        print(f"Minimax retornou score: {score}")
-                        
-                        # Registrar métricas
-                        from minimax.algoritmo import nos_expandidos_minimax
-                        metrics.nodes_expanded = nos_expandidos_minimax
-                        metrics.evaluation_score = score
-                        
-                        if best_board:
-                            print("Tabuleiro válido retornado, aplicando movimento...")
-                            game.ai_move(best_board)
-                        else:
-                            print("IA não encontrou movimentos válidos!")
+                        # Verificar capturas em sequência
+                        new_piece = game.tabuleiro.get_peça(move[0], move[1])
+                        more_captures = any(skip for _, skip in game.tabuleiro.get_valid_moves(new_piece).items())
+                        if not more_captures:
                             game.change_turn()
-                    else:  # alphabeta
-                        # Resetar contador global
-                        from minimax.algoritmo import nos_expandidos_alphabeta
-                        nos_expandidos_alphabeta = 0
-                        
-                        score, best_board = alfa_beta(game.tabuleiro, depth, float('-inf'), float('inf'), False, game)
-                        print(f"Alpha-beta retornou score: {score}")
-                        
-                        # Registrar métricas
-                        from minimax.algoritmo import nos_expandidos_alphabeta
-                        metrics.nodes_expanded = nos_expandidos_alphabeta
-                        metrics.evaluation_score = score
-                        
-                        if best_board:
-                            print("Tabuleiro válido retornado, aplicando movimento...")
-                            game.ai_move(best_board)
-                        else:
-                            print("IA não encontrou movimentos válidos!")
-                            game.change_turn()
+                    else:
+                        if algoritmo == "minimax":
+                            # Resetar contador global
+                            from minimax.algoritmo import nos_expandidos_minimax
+                            nos_expandidos_minimax = 0
+                            
+                            # Adicionar tempo de início para limitar o tempo de processamento
+                            from minimax.algoritmo import minimax
+                            minimax.start_time = time.time()
+                            
+                            score, best_board = minimax(game.tabuleiro, depth, False, game)
+                            print(f"Minimax retornou score: {score}")
+                            
+                            # Registrar métricas
+                            from minimax.algoritmo import nos_expandidos_minimax
+                            metrics.nodes_expanded = nos_expandidos_minimax
+                            metrics.evaluation_score = score
+                            
+                            if best_board:
+                                print("Tabuleiro válido retornado, aplicando movimento...")
+                                game.ai_move(best_board)
+                            else:
+                                print("IA não encontrou movimentos válidos!")
+                                game.change_turn()
+                        else:  # alphabeta
+                            # Resetar contador global
+                            from minimax.algoritmo import nos_expandidos_alphabeta
+                            nos_expandidos_alphabeta = 0
+                            
+                            # Adicionar tempo de início para limitar o tempo de processamento
+                            from minimax.algoritmo import alfa_beta
+                            alfa_beta.start_time = time.time()
+                            
+                            score, best_board = alfa_beta(game.tabuleiro, depth, float('-inf'), float('inf'), False, game)
+                            print(f"Alpha-beta retornou score: {score}")
+                            
+                            # Registrar métricas
+                            from minimax.algoritmo import nos_expandidos_alphabeta
+                            metrics.nodes_expanded = nos_expandidos_alphabeta
+                            metrics.evaluation_score = score
+                            
+                            if best_board:
+                                print("Tabuleiro válido retornado, aplicando movimento...")
+                                game.ai_move(best_board)
+                            else:
+                                print("IA não encontrou movimentos válidos!")
+                                game.change_turn()
                 except Exception as e:
                     print(f"Erro ao executar {algoritmo}: {e}")
                     import traceback
