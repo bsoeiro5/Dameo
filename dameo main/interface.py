@@ -155,9 +155,10 @@ def menu_algoritmo(tamanho, modo):
         desenhar_botao(WIN, "MCTS", CASTANHO, x_centro, 200, largura_botao, altura_botao, selecionado == "mcts")
         desenhar_botao(WIN, "Minimax", CASTANHO, x_centro, 300, largura_botao, altura_botao, selecionado == "minimax")
         desenhar_botao(WIN, "Alpha-Beta", CASTANHO, x_centro, 400, largura_botao, altura_botao, selecionado == "alphabeta")
+        desenhar_botao(WIN, "Random", CASTANHO, x_centro, 500, largura_botao, altura_botao, selecionado == "random")
         
         if selecionado:  # Só mostra o botão continuar se houver seleção
-            desenhar_botao(WIN, "Continuar", CASTANHO, x_centro, 500, largura_botao, altura_botao)
+            desenhar_botao(WIN, "Continuar", CASTANHO, x_centro, 600, largura_botao, altura_botao)
         
         pygame.display.update()
         
@@ -169,7 +170,7 @@ def menu_algoritmo(tamanho, modo):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
                 # Verifica se clicou no botão "Voltar"
-                if voltar_x <= x <= voltar_x + voltar_largura and voltar_y <= voltar_y + voltar_altura:
+                if voltar_x <= x <= voltar_x + voltar_largura and voltar_y <= y <= voltar_y + voltar_altura:
                     return menu_modo(tamanho)
                 if x_centro <= x <= x_centro + largura_botao:
                     if 200 <= y <= 200 + altura_botao:
@@ -178,9 +179,16 @@ def menu_algoritmo(tamanho, modo):
                         selecionado = "minimax"
                     elif 400 <= y <= 400 + altura_botao:
                         selecionado = "alphabeta"
-                    elif 500 <= y <= 500 + altura_botao and selecionado:
-                        return menu_dificuldade(tamanho, selecionado, modo)
-
+                    elif 500 <= y <= 500 + altura_botao:
+                        selecionado = "random"
+                    elif 600 <= y <= 600 + altura_botao and selecionado:
+                        # For random, bypass difficulty selection
+                        if selecionado == "random":
+                            return iniciar_jogo(tamanho, selecionado, None, modo)
+                        else:
+                            return menu_dificuldade(tamanho, selecionado, modo)
+                        
+                        
 def menu_dificuldade(tamanho, algoritmo, modo):
     """Menu de seleção da dificuldade."""
     run = True
