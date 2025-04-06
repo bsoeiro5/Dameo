@@ -23,13 +23,13 @@ def jogo_principal(configuracoes):
     ai_thinking = False
     
     # Verificar se as configurações necessárias existem
-    if not all(key in configuracoes for key in ["modo", "tamanho", "algoritmo", "dificuldade"]):
+    if not all(key in configuracoes for key in ["modo", "tamanho"]):
         print("Erro: Configurações incompletas")
         return
     
     # Configurar parâmetros baseado na dificuldade e algoritmo
-    dificuldade = configuracoes["dificuldade"]
-    algoritmo = configuracoes["algoritmo"]
+    dificuldade = configuracoes.get("dificuldade")
+    algoritmo = configuracoes.get("algoritmo")
     
     if algoritmo == "mcts":
         if dificuldade == "facil":
@@ -63,6 +63,10 @@ def jogo_principal(configuracoes):
             depth = 6
             
         print(f"{algoritmo.upper()} configurado: {dificuldade} - profundidade {depth}")
+    
+    # Random AI não precisa de configuração adicional
+    if algoritmo == "random":
+        print("IA Random configurada")
 
     clock = pygame.time.Clock()
 
@@ -75,7 +79,8 @@ def jogo_principal(configuracoes):
             break
 
         # Turno da IA
-        if (configuracoes["modo"] == "pvc" and game.turn == LARANJA and not ai_thinking):
+        if ((configuracoes["modo"] == "pvc" and game.turn == LARANJA) or 
+            (configuracoes["modo"] == "cvc")) and not ai_thinking:
             ai_thinking = True
             print(f"IA pensando... (algoritmo: {algoritmo}, dificuldade: {dificuldade})")
             
@@ -95,6 +100,38 @@ def jogo_principal(configuracoes):
                         game.change_turn()
                 else:
                     game.change_turn()
+            # In main.py, modify the random AI section:
+
+            elif algoritmo == "random":
+                # Implementação do algoritmo Random com prioridade para capturas
+                moves = get_valid_moves(game)
+                if moves:
+                    # Separar movimentos com e sem captura
+                    capture_moves = [move for move in moves if move[2]]  # move[2] é o parâmetro 'skip' que indica captura
+                    
+                    if capture_moves:
+                        # Se existem capturas, escolhe aleatoriamente entre elas
+                        peca, novo_pos, skip = random.choice(capture_moves)
+                        print("Random AI fez um movimento de captura")
+                    else:
+                        # Se não existem capturas, escolhe aleatoriamente entre os movimentos normais
+                        peca, novo_pos, skip = random.choice(moves)
+                        print("Random AI fez um movimento normal (sem captura)")
+                    
+                    # Executa o movimento escolhido
+                    game.tabuleiro.movimento(peca, novo_pos[0], novo_pos[1])
+                    if skip:
+                        game.tabuleiro.remove(skip)
+                        new_piece = game.tabuleiro.get_peça(novo_pos[0], novo_pos[1])
+                        # Verificar se há mais capturas possíveis
+                        more_captures = any(skip for _, skip in game.tabuleiro.get_valid_moves(new_piece).items())
+                        if not more_captures:
+                            game.change_turn()
+                    else:
+                        game.change_turn()
+                else:
+                    game.change_turn()
+                    print("Random AI não encontrou movimentos válidos")
             else:
                 # Usar minimax ou alpha-beta
                 try:
@@ -105,7 +142,7 @@ def jogo_principal(configuracoes):
                     
                     if algoritmo == "minimax":
                         score, best_board = minimax(game.tabuleiro, depth, False, game)
-                        print(f"Alpha-beta retornou score: {score}")
+                        print(f"Minimax retornou score: {score}")
                     
                         if best_board:
                             print("Tabuleiro válido retornado, aplicando movimento...")
@@ -118,9 +155,9 @@ def jogo_principal(configuracoes):
                         else:
                             print("IA não encontrou movimentos válidos!")
                             game.change_turn()
-                    else:  # alphabeta
-                        score, best_board = minimax(game.tabuleiro, depth, float('-inf'), float('inf'), False, game)
-                        print(f"Minimax retornou score: {score}")
+                    elif algoritmo == "alphabeta":
+                        score, best_board = alfa_beta(game.tabuleiro, depth, float('-inf'), float('inf'), False, game)
+                        print(f"Alpha-beta retornou score: {score}")
                     
                         if best_board:
                             print("Tabuleiro válido retornado, aplicando movimento...")
