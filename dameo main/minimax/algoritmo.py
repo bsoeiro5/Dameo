@@ -6,16 +6,19 @@ from dameo_sub.tabuleiro import Tabuleiro
 
 nos_expandidos_minimax = 0
 nos_expandidos_alphabeta = 0
-
-import time
-from copy import deepcopy
-from dameo_sub.constants import LARANJA, VERDE
-
-nos_expandidos_alphabeta = 0
+nos_podados_alphabeta = 0  # Nova métrica para Alpha-Beta
+profundidade_maxima_alcancada = 0  # Nova métrica
+capturas_sequenciais_max = 0  # Nova métrica
+valor_heuristico_inicial = 0  # Nova métrica
+valor_heuristico_final = 0  # Nova métrica
 
 def alfa_beta(tabuleiro, depth, alpha, beta, max_player, game):
-    global nos_expandidos_alphabeta
+    global nos_expandidos_alphabeta, nos_podados_alphabeta, profundidade_maxima_alcancada
     nos_expandidos_alphabeta += 1
+    
+    # Atualizar profundidade máxima alcançada
+    if hasattr(alfa_beta, 'depth_inicial') and alfa_beta.depth_inicial - depth > profundidade_maxima_alcancada:
+        profundidade_maxima_alcancada = alfa_beta.depth_inicial - depth
     
     # Restrição de tempo mais generosa para permitir análise mais profunda
     current_time = time.time()
@@ -42,6 +45,7 @@ def alfa_beta(tabuleiro, depth, alpha, beta, max_player, game):
                 best_move = move
             alpha = max(alpha, evaluation)
             if beta <= alpha:
+                nos_podados_alphabeta += len(moves) - (moves.index(move) + 1)  # Contar nós podados
                 break
         return maxEval, best_move
     else:
