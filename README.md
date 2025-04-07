@@ -26,9 +26,10 @@ O objetivo central do jogador no “Dameo” é capturar todas as peças advers�
 #### Primeiro passo:
 Extraia o .zip da página github e descomprima o ficheiro
 #### Segundo passo: 
-Instale `numpy` no diretório pelo terminal 
+Instale `numpy` e `pygame` no diretório pelo terminal 
 ```
 pip install numpy
+pip install pygame
 ```
 #### Terceiro passo: **IMPORTANTE** 
 Entre no diretório do ficheiro main.py pelo terminal (no folder [/dameo main](/dameo_sub)) 
