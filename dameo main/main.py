@@ -82,7 +82,7 @@ def jogo_principal(configuracoes):
         print(f"{algoritmo.upper()} configurado: {dificuldade} - profundidade {depth}")
         metrics.set_algorithm_info(algoritmo.upper(), dificuldade, depth)
 
-    # Registar estado inicial do tabuleiro
+    # Registrar estado inicial do tabuleiro
     metrics.update_piece_count(game.tabuleiro.verdes_left, game.tabuleiro.laranjas_left)
     
     clock = pygame.time.Clock()
@@ -91,7 +91,7 @@ def jogo_principal(configuracoes):
         clock.tick(60)
         
         if game.verificar_fim_do_jogo():
-            # Registar métricas finais do jogo
+            # Registrar métricas finais do jogo
             total_game_time = time.time() - game_start_time
             metrics.update_piece_count(game.tabuleiro.verdes_left, game.tabuleiro.laranjas_left)
             metrics.record_move_metrics(move_number, total_game_time)
@@ -188,7 +188,7 @@ def jogo_principal(configuracoes):
                             score, best_board = minimax(game.tabuleiro, depth, False, game)
                             print(f"Minimax retornou score: {score}")
                             
-                            # Registar métricas
+                            # Registrar métricas
                             from minimax.algoritmo import nos_expandidos_minimax
                             metrics.nodes_expanded = nos_expandidos_minimax
                             metrics.evaluation_score = score
@@ -211,7 +211,7 @@ def jogo_principal(configuracoes):
                             score, best_board = alfa_beta(game.tabuleiro, depth, float('-inf'), float('inf'), False, game)
                             print(f"Alpha-beta retornou score: {score}")
                             
-                            # Registar métricas
+                            # Registrar métricas
                             from minimax.algoritmo import nos_expandidos_alphabeta
                             metrics.nodes_expanded = nos_expandidos_alphabeta
                             metrics.evaluation_score = score
@@ -230,7 +230,7 @@ def jogo_principal(configuracoes):
                     traceback.print_exc()
                     game.change_turn()
             
-            # Parar timer e registar métricas
+            # Parar timer e registrar métricas
             metrics.stop_move_timer()
             metrics.update_piece_count(game.tabuleiro.verdes_left, game.tabuleiro.laranjas_left)
             metrics.print_move_summary(move_number)
@@ -254,7 +254,7 @@ def jogo_principal(configuracoes):
                 row, col = pos[1] // TAMANHO_QUADRADO, pos[0] // TAMANHO_QUADRADO
                 selected = game.select(row, col)
                 
-                # Se um movimento foi feito, registe
+                # Se um movimento foi feito, registre
                 if selected and game.turn == LARANJA:  # O turno mudou depois do movimento
                     move_number += 1
                     print(f"\n--- Turno {move_number} do Jogador ---")
