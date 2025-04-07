@@ -47,7 +47,7 @@ python3 dameo.py
 ## Navegação do Menu Principal
 
 ### Menu Principal
-Você verá duas opções:
+São disponibilizadas duas opções:
 
 - **Jogar**: Clique neste botão para começar a configurar um jogo  
 - **Regras**: Clique para ver as regras do jogo  
@@ -59,7 +59,7 @@ Depois de clicar em **"Jogar"**, selecione entre:
 - **Tabuleiro 8x8** (tamanho padrão)  
 - **Tabuleiro 12x12** (maior, jogabilidade mais complexa)  
 
-Clique em **"Continuar"** após fazer sua seleção.
+Clique em **"Continuar"** após fazer a sua seleção.
 
 ### Seleção do Modo de Jogo
 Escolha entre:
@@ -87,7 +87,7 @@ Clique em **"Continuar"** para iniciar o jogo.
 
 ### Controles de Navegação
 
-- **Botão Voltar**: Na parte inferior de cada tela de menu, há um botão "Voltar" para retornar ao menu anterior  
+- **Botão Voltar**: Na parte inferior de cada tela do menu, há um botão "Voltar" para voltar ao menu anterior  
 - **Tecla ESC**: Pressione *Escape* para voltar ao menu anterior  
 - **Rato**: Clique nos botões para fazer seleções  
 
