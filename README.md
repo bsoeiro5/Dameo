@@ -42,4 +42,54 @@ Corra o programa
 python3 dameo.py
 ```
 *****
+*****
+
+## Navegação do Menu Principal
+
+### Menu Principal
+Você verá duas opções:
+
+- **Jogar**: Clique neste botão para começar a configurar um jogo  
+- **Regras**: Clique para ver as regras do jogo  
+
+### Seleção do Tamanho do Tabuleiro
+Depois de clicar em **"Jogar"**, selecione entre:
+
+- **Tabuleiro 6x6** (menor, jogabilidade mais rápida)  
+- **Tabuleiro 8x8** (tamanho padrão)  
+- **Tabuleiro 12x12** (maior, jogabilidade mais complexa)  
+
+Clique em **"Continuar"** após fazer sua seleção.
+
+### Seleção do Modo de Jogo
+Escolha entre:
+
+- **Player vs Player**  
+- **Player vs Computer**  
+- **Computer vs Computer**  
+
+Clique em **"Continuar"** para prosseguir.
+
+### Seleção de Algoritmo (para jogadores controlados pelo computador)
+- **MCTS** (Monte Carlo Tree Search)  
+- **Minimax**  
+- **Alpha-Beta**  
+- **Random**  
+
+Clique em **"Continuar"** após a seleção.
+
+### Seleção de Dificuldade (exceto para o algoritmo Random)
+- **Fácil**  
+- **Médio**  
+- **Difícil**  
+
+Clique em **"Continuar"** para iniciar o jogo.
+
+### Controles de Navegação
+
+- **Botão Voltar**: Na parte inferior de cada tela de menu, há um botão "Voltar" para retornar ao menu anterior  
+- **Tecla ESC**: Pressione *Escape* para voltar ao menu anterior  
+- **Rato**: Clique nos botões para fazer seleções  
+
+> A interface foi projetada para ser intuitiva, com posicionamento claro dos botões. Todos os botões estão posicionados no lado esquerdo da tela, com destaque na seleção quando uma opção é escolhida.
 
