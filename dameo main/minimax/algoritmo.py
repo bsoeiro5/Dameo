@@ -173,15 +173,28 @@ def simular_movimento(peça, movimento, tabuleiro, game, skip):
             return None
     return None
         
-def minimax(tabuleiro, depth, max_player, game, alpha=float('-inf'), beta=float('inf')):
-    global nos_expandidos_minimax
-    nos_expandidos_minimax += 1
+def minimax(tabuleiro, depth, max_player, game):
+    """
+    Implementação pura do algoritmo Minimax com tracking de métricas
+    """
+    # Initialize metrics if not already done
+    if not hasattr(minimax, 'nos_expandidos_minimax'):
+        minimax.nos_expandidos_minimax = 0
+    if not hasattr(minimax, 'start_time'):
+        minimax.start_time = time.time()
+    if not hasattr(minimax, 'max_depth_reached'):
+        minimax.max_depth_reached = 0
+    
+    # Update metrics
+    minimax.nos_expandidos_minimax += 1
+    minimax.max_depth_reached = max(minimax.max_depth_reached, depth)
 
-    # Adiciona restrição de tempo mais generosa
+    # Time limit check
     current_time = time.time()
-    if hasattr(minimax, 'start_time') and current_time - minimax.start_time > 10:  # 10 segundos
+    if current_time - minimax.start_time > 10:  # 10 segundos
         return tabuleiro.heuristica(), tabuleiro
 
+    # Base cases
     if depth == 0 or tabuleiro.winner() is not None:
         return tabuleiro.heuristica(), tabuleiro
 
@@ -194,13 +207,11 @@ def minimax(tabuleiro, depth, max_player, game, alpha=float('-inf'), beta=float(
             return maxEval, tabuleiro
 
         for move in moves:
-            evaluation = minimax(move, depth - 1, False, game, alpha, beta)[0]
+            evaluation = minimax(move, depth - 1, False, game)[0]
             if evaluation > maxEval:
                 maxEval = evaluation
                 best_move = move
-            alpha = max(alpha, evaluation)
-            if beta <= alpha:  # Add pruning to regular minimax
-                break
+        
         return maxEval, best_move
     else:
         minEval = float('inf')
@@ -211,11 +222,9 @@ def minimax(tabuleiro, depth, max_player, game, alpha=float('-inf'), beta=float(
             return minEval, tabuleiro
 
         for move in moves:
-            evaluation = minimax(move, depth - 1, True, game, alpha, beta)[0]
+            evaluation = minimax(move, depth - 1, True, game)[0]
             if evaluation < minEval:
                 minEval = evaluation
                 best_move = move
-            beta = min(beta, evaluation)
-            if beta <= alpha:  # Add pruning to regular minimax
-                break
+        
         return minEval, best_move
