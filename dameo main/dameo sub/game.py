@@ -6,7 +6,6 @@ class Game:
     def __init__(self, win):
         self._init()
         self.win = win
-        print("Machado morto")
 
     def _init(self):
         self.selected = None
