@@ -1,25 +1,28 @@
 import pygame
-from .constants import CINZA, LINHAS, BRANCO ,TAMANHO_QUADRADO, COLUNAS, LARANJA, VERDE, PRETO, ALTURA
+from .constants import CINZA, BRANCO, LARANJA, VERDE, PRETO, ALTURA, LARGURA
 from .peças import Peças
 
 class Tabuleiro:
-    def __init__(self):
+    def __init__(self, linhas=8):
+        self.LINHAS = linhas
+        self.COLUNAS = linhas
+        self.TAMANHO_QUADRADO = LARGURA // self.COLUNAS
         self.board = []
         self.verdes_left = self.laranjas_left = 18
         self.verdes_kings = self.laranjas_kings = 0
         self.create_tabuleiro()
 
-    def draw_quadrados(self,win):
+    def draw_quadrados(self, win):
         win.fill(CINZA)
-        for  LINHA in range(LINHAS):
-            for COLUNA in range(LINHA%2, COLUNAS, 2):
-                pygame.draw.rect(win, BRANCO, (LINHA*TAMANHO_QUADRADO, COLUNA*TAMANHO_QUADRADO, TAMANHO_QUADRADO, TAMANHO_QUADRADO))
+        for LINHA in range(self.LINHAS):
+            for COLUNA in range(LINHA % 2, self.COLUNAS, 2):
+                pygame.draw.rect(win, BRANCO, (LINHA * self.TAMANHO_QUADRADO, COLUNA * self.TAMANHO_QUADRADO, self.TAMANHO_QUADRADO, self.TAMANHO_QUADRADO))
 
-    def draw_bordas(self,win):
-        for LINHA in range(LINHAS):
-            pygame.draw.line(win, PRETO, (0, LINHA * TAMANHO_QUADRADO), (ALTURA, LINHA * TAMANHO_QUADRADO), 2)
-            for COLUNA in range(COLUNAS):
-                pygame.draw.line(win, PRETO, (COLUNA * TAMANHO_QUADRADO, 0), (COLUNA * TAMANHO_QUADRADO, ALTURA), 2)
+    def draw_bordas(self, win):
+        for LINHA in range(self.LINHAS):
+            pygame.draw.line(win, PRETO, (0, LINHA * self.TAMANHO_QUADRADO), (ALTURA, LINHA * self.TAMANHO_QUADRADO), 2)
+            for COLUNA in range(self.COLUNAS):
+                pygame.draw.line(win, PRETO, (COLUNA * self.TAMANHO_QUADRADO, 0), (COLUNA * self.TAMANHO_QUADRADO, ALTURA), 2)
 
     def heuristica(self):
         # Peso para peças normais e kings
@@ -31,11 +34,12 @@ class Tabuleiro:
 
         # Avaliação da proximidade de peças para se tornarem kings
         proximidade_kings_verde = sum(peca.linha for linha in self.board for peca in linha if peca != 0 and peca.cor == VERDE)
-        proximidade_kings_laranja = sum((LINHAS - 1 - peca.linha) for linha in self.board for peca in linha if peca != 0 and peca.cor == LARANJA)
-        fator_kings = (proximidade_kings_laranja - proximidade_kings_verde) / (LINHAS * self.laranjas_left + self.verdes_left + 1)  # Normalização
+        proximidade_kings_laranja = sum((self.LINHAS - 1 - peca.linha) for linha in self.board for peca in linha if peca != 0 and peca.cor == LARANJA)
+        fator_kings = (proximidade_kings_laranja - proximidade_kings_verde) / (self.LINHAS * self.laranjas_left + self.verdes_left + 1)  # Normalização
 
         # Controle do tabuleiro (posições centrais são estratégicas)
-        pontos_estrategicos = [(LINHAS//2, COLUNAS//2), (LINHAS//2 - 1, COLUNAS//2), (LINHAS//2, COLUNAS//2 - 1), (LINHAS//2 - 1, COLUNAS//2 - 1)]
+        pontos_estrategicos = [(self.LINHAS//2, self.COLUNAS//2), (self.LINHAS//2 - 1, self.COLUNAS//2), 
+                              (self.LINHAS//2, self.COLUNAS//2 - 1), (self.LINHAS//2 - 1, self.COLUNAS//2 - 1)]
         controle_verde = sum(1 for linha, coluna in pontos_estrategicos if self.board[linha][coluna] != 0 and self.board[linha][coluna].cor == VERDE)
         controle_laranja = sum(1 for linha, coluna in pontos_estrategicos if self.board[linha][coluna] != 0 and self.board[linha][coluna].cor == LARANJA)
         controle_tabuleiro = controle_laranja - controle_verde
@@ -43,10 +47,7 @@ class Tabuleiro:
         # Combinação dos fatores com pesos ajustáveis
         return diferenca_pecas + fator_kings * 1.5 + controle_tabuleiro * 2
 
-        
-        return score
-
-    def get_all_peças(self,cor):
+    def get_all_peças(self, cor):
         peças = []
         for LINHA in self.board:
             for peça in LINHA:
@@ -59,7 +60,7 @@ class Tabuleiro:
         peca.movimento(linha, coluna)
 
         # Corrigir a lógica de transformação em king
-        if (peca.cor == VERDE and linha == LINHAS - 1) or (peca.cor == LARANJA and linha == 0):
+        if (peca.cor == VERDE and linha == self.LINHAS - 1) or (peca.cor == LARANJA and linha == 0):
             peca.make_king()
             if peca.cor == VERDE:
                 self.verdes_kings += 1
@@ -68,42 +69,42 @@ class Tabuleiro:
             
             print(f"Movimento realizado: peça agora está em ({peca.linha}, {peca.coluna})")
 
-    def get_peça(self,linha,coluna):
+    def get_peça(self, linha, coluna):
         return self.board[linha][coluna]
 
     def create_tabuleiro(self):
-    # Definir o número de linhas com peças baseado no tamanho do tabuleiro
-        if LINHAS == 6:
+        # Definir o número de linhas com peças baseado no tamanho do tabuleiro
+        if self.LINHAS == 6:
             linhas_com_peças = 2
-        elif LINHAS == 8:
+        elif self.LINHAS == 8:
             linhas_com_peças = 3
-        elif LINHAS == 12:
+        elif self.LINHAS == 12:
             linhas_com_peças = 4
         else:
             raise ValueError("Tamanho do tabuleiro não suportado. Use 6x6, 8x8 ou 12x12.")
 
-        for LINHA in range(LINHAS):
+        for LINHA in range(self.LINHAS):
             self.board.append([])  # Cria uma linha (lista vazia)
-            for COLUNA in range(COLUNAS):
+            for COLUNA in range(self.COLUNAS):
                 # Linhas do topo (peças verdes)
-                if LINHA < linhas_com_peças and COLUNA >= LINHA and COLUNA < COLUNAS - LINHA:
-                    self.board[LINHA].append(Peças(LINHA, COLUNA, VERDE))
+                if LINHA < linhas_com_peças and COLUNA >= LINHA and COLUNA < self.COLUNAS - LINHA:
+                    self.board[LINHA].append(Peças(LINHA, COLUNA, VERDE, self.TAMANHO_QUADRADO))
                     # Linhas da base (peças laranjas)
-                elif LINHA >= LINHAS - linhas_com_peças and COLUNA >= (LINHAS - 1 - LINHA) and COLUNA < COLUNAS - (LINHAS - 1 - LINHA):
-                    self.board[LINHA].append(Peças(LINHA, COLUNA, LARANJA))
+                elif LINHA >= self.LINHAS - linhas_com_peças and COLUNA >= (self.LINHAS - 1 - LINHA) and COLUNA < self.COLUNAS - (self.LINHAS - 1 - LINHA):
+                    self.board[LINHA].append(Peças(LINHA, COLUNA, LARANJA, self.TAMANHO_QUADRADO))
                 else:
                     self.board[LINHA].append(0)  # Espaço vazio
 
-    def desenhar(self,win): 
+    def desenhar(self, win): 
         self.draw_quadrados(win)
-        for LINHA in range(LINHAS):
-            for COLUNA in range(COLUNAS):
+        for LINHA in range(self.LINHAS):
+            for COLUNA in range(self.COLUNAS):
                 peças = self.board[LINHA][COLUNA]
                 if peças != 0:
                     peças.draw(win)
         self.draw_bordas(win)
 
-    def remove(self,peças):
+    def remove(self, peças):
         for peça in peças:
             self.board[peça.linha][peça.coluna] = 0
             if peça != 0:
@@ -111,6 +112,7 @@ class Tabuleiro:
                     self.laranjas_left -= 1
                 else:
                     self.verdes_left -= 1
+
     def winner(self):
         if self.laranjas_left <= 0:
             return 'VERDE'
@@ -133,21 +135,20 @@ class Tabuleiro:
             movimentos.update(self._traverse_right(linha -1, max(linha-7, -1), -1, peca.cor, direita))
             movimentos.update(self._traverse_vertical(linha - 1, max(linha-7, -1), -1, peca.cor, peca.coluna))
             movimentos.update(self._traverse_horizontal(peca.coluna - 1, -1, -1, peca.cor, linha))
-            movimentos.update(self._traverse_horizontal(peca.coluna + 1, COLUNAS, 1, peca.cor, linha))
+            movimentos.update(self._traverse_horizontal(peca.coluna + 1, self.COLUNAS, 1, peca.cor, linha))
             
         if peca.cor == VERDE:
-            movimentos.update(self._traverse_left(linha +1, min(linha+7, LINHAS), 1, peca.cor, esquerda))
-            movimentos.update(self._traverse_right(linha +1, min(linha+7, LINHAS), 1, peca.cor, direita))
-            movimentos.update(self._traverse_vertical(linha + 1, min(linha+7, LINHAS), 1, peca.cor, peca.coluna))
+            movimentos.update(self._traverse_left(linha +1, min(linha+7, self.LINHAS), 1, peca.cor, esquerda))
+            movimentos.update(self._traverse_right(linha +1, min(linha+7, self.LINHAS), 1, peca.cor, direita))
+            movimentos.update(self._traverse_vertical(linha + 1, min(linha+7, self.LINHAS), 1, peca.cor, peca.coluna))
             movimentos.update(self._traverse_horizontal(peca.coluna - 1, -1, -1, peca.cor, linha))
-            movimentos.update(self._traverse_horizontal(peca.coluna + 1, COLUNAS, 1, peca.cor, linha))
+            movimentos.update(self._traverse_horizontal(peca.coluna + 1, self.COLUNAS, 1, peca.cor, linha))
 
         # Adiciona a verificação de captura para trás
         movimentos.update(self._check_backward_capture(peca))
 
         return movimentos
     
-
     def _get_king_moves(self, king):
         """ Retorna todos os movimentos possíveis do king. """
         movimentos = {}
@@ -170,13 +171,12 @@ class Tabuleiro:
 
         return movimentos
 
-
     def _traverse_line(self, linha, coluna, dir_linha, dir_coluna):
         """ Move-se livremente em linha reta até encontrar uma peça ou borda do tabuleiro. """
         movimentos = {}
         r, c = linha + dir_linha, coluna + dir_coluna
 
-        while 0 <= r < LINHAS and 0 <= c < COLUNAS:
+        while 0 <= r < self.LINHAS and 0 <= c < self.COLUNAS:
             if self.board[r][c] == 0:  # Casa vazia, pode se mover
                 movimentos[(r, c)] = []
             else:  # Encontrou uma peça, bloqueia o caminho
@@ -186,14 +186,13 @@ class Tabuleiro:
 
         return movimentos
 
-
     def _king_capture(self, king, dir_linha, dir_coluna):
         """ Captura para frente na direção horizontal ou vertical, podendo seguir até onde desejar após capturar. """
         movimentos = {}
         r, c = king.linha + dir_linha, king.coluna + dir_coluna
         capturada = None
 
-        while 0 <= r < LINHAS and 0 <= c < COLUNAS:
+        while 0 <= r < self.LINHAS and 0 <= c < self.COLUNAS:
             peça = self.board[r][c]
 
             if peça == 0:  # Casa vazia
@@ -211,13 +210,11 @@ class Tabuleiro:
 
         return movimentos
 
-    
-
     def _traverse_diagonal_king(self, start_linha, start_coluna, step_linha, step_coluna):
         movimentos = {}
 
         linha, coluna = start_linha, start_coluna
-        while 0 <= linha < LINHAS and 0 <= coluna < COLUNAS:
+        while 0 <= linha < self.LINHAS and 0 <= coluna < self.COLUNAS:
             if self.board[linha][coluna] == 0:  # Se for casa vazia, adiciona como movimento válido
                 movimentos[(linha, coluna)] = []
             else:  # Se encontrar uma peça, para
@@ -227,8 +224,6 @@ class Tabuleiro:
             coluna += step_coluna
 
         return movimentos
-
-
 
     def _traverse_left(self, start, stop, step, cor, left, skipped=[]):
         movimentos = {}
@@ -249,7 +244,7 @@ class Tabuleiro:
                     if step == -1:
                         row = max(r - 1, 0)
                     else:
-                        row = min(r + 1, LINHAS)
+                        row = min(r + 1, self.LINHAS)
                     movimentos.update(self._traverse_left(r + step, row, step, cor, left - 1, skipped=skipped))
                     movimentos.update(self._traverse_right(r + step, row, step, cor, left + 1, skipped=skipped))
                 break
@@ -265,13 +260,12 @@ class Tabuleiro:
 
         return movimentos
 
-
     def _traverse_right(self, start, stop, step, cor, right, skipped=[]):
         movimentos = {}
         last = []
 
         for r in range(start, stop, step):
-            if right >= COLUNAS:
+            if right >= self.COLUNAS:
                 break
 
             current = self.board[r][right]
@@ -285,7 +279,7 @@ class Tabuleiro:
                     if step == -1:
                         row = max(r - 1, 0)
                     else:
-                        row = min(r + 1, LINHAS)
+                        row = min(r + 1, self.LINHAS)
                     movimentos.update(self._traverse_left(r + step, row, step, cor, right - 1, skipped=skipped))
                     movimentos.update(self._traverse_right(r + step, row, step, cor, right + 1, skipped=skipped))
                 break
@@ -319,7 +313,7 @@ class Tabuleiro:
                     if step == -1:
                         row = max(r - 1, 0)
                     else:
-                        row = min(r + 1, LINHAS)
+                        row = min(r + 1, self.LINHAS)
 
                     movimentos.update(self._traverse_left(r + step, row, step, cor, coluna - 1, skipped=skipped))
                     movimentos.update(self._traverse_right(r + step, row, step, cor, coluna + 1, skipped=skipped))
@@ -339,14 +333,13 @@ class Tabuleiro:
 
         return movimentos
     
-
     def _traverse_horizontal(self, start, stop, step, cor, linha, skipped=[]):
         movimentos = {}
         last = []  # Peças que podem ser capturadas
         encontrou_adversario = False  # Flag para indicar se encontrou uma peça adversária
 
         for c in range(start, stop, step):
-            if not 0 <= c < COLUNAS:  # Verificar se está dentro dos limites do tabuleiro
+            if not 0 <= c < self.COLUNAS:  # Verificar se está dentro dos limites do tabuleiro
                 break
 
             current = self.board[linha][c]
@@ -371,8 +364,8 @@ class Tabuleiro:
     
     # Adicione este método à classe Tabuleiro
     def has_forced_captures(self, cor):
-        for linha in range(LINHAS):
-            for coluna in range(COLUNAS):
+        for linha in range(self.LINHAS):
+            for coluna in range(self.COLUNAS):
                 peça = self.board[linha][coluna]
                 if peça != 0 and peça.cor == cor:
                     moves = self.get_valid_moves(peça)
@@ -390,10 +383,9 @@ class Tabuleiro:
             if self.board[linha-1][coluna] != 0 and self.board[linha-1][coluna].cor != peca.cor:
                 if self.board[linha-2][coluna] == 0:
                     movimentos[(linha-2, coluna)] = [self.board[linha-1][coluna]]
-        elif peca.cor == LARANJA and linha < LINHAS - 2:
+        elif peca.cor == LARANJA and linha < self.LINHAS - 2:
             if self.board[linha+1][coluna] != 0 and self.board[linha+1][coluna].cor != peca.cor:
                 if self.board[linha+2][coluna] == 0:
                     movimentos[(linha+2, coluna)] = [self.board[linha+1][coluna]]
 
         return movimentos
-    
