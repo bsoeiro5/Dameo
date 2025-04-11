@@ -173,9 +173,14 @@ class Game:
     def ai_move(self, tabuleiro):
         """Atualiza o tabuleiro com o movimento da IA"""
         if tabuleiro:
+            current_turn = self.turn 
             self.tabuleiro = tabuleiro
-            print("Movimento da IA aplicado com sucesso")
-            self.change_turn()
+            print(f"Movimento da IA aplicado com sucesso para peças {current_turn}")
+            if self.turn == current_turn:
+                self.change_turn()
+                print(f"Turno mudado explicitamente para {self.turn}")
+            else:
+                print(f"Turno já foi alterado pelo algoritmo para {self.turn}")
         else:
             print("Erro: Tabuleiro inválido recebido pela IA")
     
