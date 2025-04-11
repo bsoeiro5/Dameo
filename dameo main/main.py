@@ -87,6 +87,9 @@ def jogo_principal(configuracoes):
     
     clock = pygame.time.Clock()
 
+    # Substitua o loop principal no arquivo main.py com esta versão modificada:
+
+    # Dentro da função jogo_principal, substitua o loop "while run:" por este:
     while run:
         clock.tick(60)
         
@@ -101,10 +104,11 @@ def jogo_principal(configuracoes):
             break
 
         # Turno da IA
-        if (configuracoes["modo"] == "pvc" and game.turn == LARANJA and not ai_thinking):
+        if ((configuracoes["modo"] == "pvc" and game.turn == LARANJA) or 
+            (configuracoes["modo"] == "cvc")) and not ai_thinking:
             ai_thinking = True
             move_number += 1
-            print(f"\n--- Turno {move_number} da IA ---")
+            print(f"\n--- Turno {move_number} da IA ({game.turn}) ---")
             print(f"IA pensando... (algoritmo: {algoritmo}, dificuldade: {dificuldade})")
             
             # Iniciar timer
@@ -157,7 +161,7 @@ def jogo_principal(configuracoes):
                     
                     # Verifica se há capturas obrigatórias primeiro
                     capturas_obrigatorias = []
-                    for piece in game.tabuleiro.get_all_peças(LARANJA):
+                    for piece in game.tabuleiro.get_all_peças(game.turn):
                         valid_moves = game.tabuleiro.get_valid_moves(piece)
                         for move, skip in valid_moves.items():
                             if skip:
@@ -239,7 +243,23 @@ def jogo_principal(configuracoes):
             # Mostrar diferença no tabuleiro após o movimento
             print(f"Peças capturadas: Verde: {old_green - game.tabuleiro.verdes_left}, Laranja: {old_orange - game.tabuleiro.laranjas_left}")
             
+            # ALTERAÇÃO: Forçar atualização da tela e adicionar delay
+            game.update(WIN)
+            pygame.time.delay(1000)  # Delay de 1 segundo para visualizar o movimento
+            
             ai_thinking = False
+            
+            # IMPORTANTE: Permitir processamento de eventos durante o modo Computer vs Computer
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                    break
+                
+                # Permitir que o usuário interrompa o jogo com ESC
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    run = False
+                    break
+                    
             continue
 
         # Processar eventos do jogador
