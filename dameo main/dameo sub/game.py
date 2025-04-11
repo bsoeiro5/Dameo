@@ -1,20 +1,22 @@
 import pygame
-from .constants import VERDE, LARANJA, TAMANHO_QUADRADO, ALTURA, AZUL, LINHAS, COLUNAS, LARGURA
+from .constants import VERDE, LARANJA, ALTURA, AZUL, LARGURA
 from .tabuleiro import Tabuleiro 
 
 class Game:
-    def __init__(self, win):
+    def __init__(self, win, linhas=8):
+        self.LINHAS = linhas  # Store LINHAS as an instance variable
+        self.COLUNAS = linhas  # Assuming square board
+        self.TAMANHO_QUADRADO = LARGURA // self.COLUNAS  # Calculate TAMANHO_QUADRADO
         self._init()
         self.win = win
 
     def _init(self):
         self.selected = None
-        self.tabuleiro = Tabuleiro() 
+        self.tabuleiro = Tabuleiro(self.LINHAS) 
         self.turn = VERDE
         self.valid_moves = {}
         self.must_capture = False
         self.capturing_piece = None  # Armazena a peça que está a capturar
-
 
     def winner(self):
         return self.tabuleiro.winner()
@@ -106,8 +108,8 @@ class Game:
     def _check_capture_requirements(self):
         self.must_capture = False
         # Verifica se há capturas obrigatórias
-        for linha in range(LINHAS):
-            for coluna in range(COLUNAS):
+        for linha in range(self.LINHAS):
+            for coluna in range(self.COLUNAS):
                 peça = self.tabuleiro.get_peça(linha, coluna)
                 if peça != 0 and peça.cor == self.turn:
                     moves = self.tabuleiro.get_valid_moves(peça)
@@ -115,11 +117,10 @@ class Game:
                         self.must_capture = True
                         return
 
-
     def draw_valid_moves(self, movimentos):
         for movimento in movimentos:
             linha, coluna = movimento
-            pygame.draw.circle(self.win, AZUL, (coluna * TAMANHO_QUADRADO + TAMANHO_QUADRADO//2, linha * TAMANHO_QUADRADO + TAMANHO_QUADRADO//2), 15)
+            pygame.draw.circle(self.win, AZUL, (coluna * self.TAMANHO_QUADRADO + self.TAMANHO_QUADRADO//2, linha * self.TAMANHO_QUADRADO + self.TAMANHO_QUADRADO//2), 15)
 
     def display_winner_message(self, winner):
         pygame.font.init()
@@ -141,14 +142,14 @@ class Game:
         # Verifica se o jogo terminou em empate (nenhum jogador pode se mover)
         verde_moves = any(
             self.tabuleiro.get_valid_moves(self.tabuleiro.get_peça(linha, coluna))
-            for linha in range(LINHAS)
-            for coluna in range(COLUNAS)
+            for linha in range(self.LINHAS)
+            for coluna in range(self.LINHAS)
             if self.tabuleiro.get_peça(linha, coluna) != 0 and self.tabuleiro.get_peça(linha, coluna).cor == VERDE
         )
         laranja_moves = any(
             self.tabuleiro.get_valid_moves(self.tabuleiro.get_peça(linha, coluna))
-            for linha in range(LINHAS)
-            for coluna in range(COLUNAS)
+            for linha in range(self.LINHAS)
+            for coluna in range(self.LINHAS)
             if self.tabuleiro.get_peça(linha, coluna) != 0 and self.tabuleiro.get_peça(linha, coluna).cor == LARANJA
         )
         
