@@ -249,14 +249,14 @@ class MCTS:
         return moves
 
     def _copy_game_state(self, game):
-        new_game = type(game)(game.win)
+        new_game = type(game)(game.win, game.LINHAS)  # Pass LINHAS to the Game constructor
         new_game.turn = game.turn
         new_game.selected = None
         new_game.valid_moves = {}
         
         # Copiar tabuleiro
-        new_game.tabuleiro = Tabuleiro()
-        new_game.tabuleiro.board = [[self._copy_peca(peca) for peca in row] for row in game.tabuleiro.board]
+        new_game.tabuleiro = Tabuleiro(game.LINHAS)  # Pass LINHAS to Tabuleiro constructor
+        new_game.tabuleiro.board = [[self._copy_peca(peca, game.TAMANHO_QUADRADO) for peca in row] for row in game.tabuleiro.board]
         new_game.tabuleiro.verdes_left = game.tabuleiro.verdes_left
         new_game.tabuleiro.laranjas_left = game.tabuleiro.laranjas_left
         new_game.tabuleiro.verdes_kings = game.tabuleiro.verdes_kings
@@ -264,9 +264,9 @@ class MCTS:
         
         return new_game
 
-    def _copy_peca(self, peca):
+    def _copy_peca(self, peca, tamanho_quadrado):
         if peca == 0:
             return 0
-        new_peca = Peças(peca.linha, peca.coluna, peca.cor)
+        new_peca = Peças(peca.linha, peca.coluna, peca.cor, tamanho_quadrado)
         new_peca.king = peca.king
         return new_peca
