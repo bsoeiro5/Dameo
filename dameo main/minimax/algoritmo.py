@@ -228,3 +228,7 @@ def minimax(tabuleiro, depth, max_player, game):
                 best_move = move
         
         return minEval, best_move
+                minEval = evaluation
+                best_move = move
+        
+        return minEval, best_move
