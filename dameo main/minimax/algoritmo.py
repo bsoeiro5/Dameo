@@ -115,7 +115,12 @@ def get_all_moves(tabuleiro, cor, game):
 def simular_movimento(peça, movimento, tabuleiro, game, skip):
     if peça and movimento:
         try:
+            # Registrar turno atual
+            turno_atual = game.turn
+            
+            # Realizar o movimento
             tabuleiro.movimento(peça, movimento[0], movimento[1])
+            
             if skip:
                 tabuleiro.remove(skip)
                 
@@ -224,10 +229,6 @@ def minimax(tabuleiro, depth, max_player, game):
         for move in moves:
             evaluation = minimax(move, depth - 1, True, game)[0]
             if evaluation < minEval:
-                minEval = evaluation
-                best_move = move
-        
-        return minEval, best_move
                 minEval = evaluation
                 best_move = move
         
