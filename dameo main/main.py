@@ -20,7 +20,10 @@ def get_valid_moves(game):
 def jogo_principal(configuracoes):
     """Função principal do jogo que recebe as configurações do menu"""
     WIN = pygame.display.set_mode((LARGURA, ALTURA))
-    game = Game(WIN)
+    from interface import get_tamanho_numerico
+    LINHAS = get_tamanho_numerico(configuracoes["tamanho"])
+    COLUNAS = LINHAS
+    game = Game(WIN,LINHAS)
     run = True
     ai_thinking = False
     
@@ -271,7 +274,7 @@ def jogo_principal(configuracoes):
             if event.type == pygame.MOUSEBUTTONDOWN and \
                (configuracoes["modo"] == "pvp" or (configuracoes["modo"] == "pvc" and game.turn == VERDE)):
                 pos = pygame.mouse.get_pos()
-                row, col = pos[1] // TAMANHO_QUADRADO, pos[0] // TAMANHO_QUADRADO
+                row, col = pos[1] // game.TAMANHO_QUADRADO, pos[0] // game.TAMANHO_QUADRADO
                 selected = game.select(row, col)
                 
                 # Se um movimento foi feito, registre
