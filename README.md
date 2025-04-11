@@ -31,12 +31,10 @@ Extraia o .zip da página github e descomprima o ficheiro
 
 
 
-
 Certifique-se que tem a versão do python: 3.12.8
 
 #### Segundo passo: 
 Instale `numpy` e `pygame` no diretório pelo terminal 
-
 
 
 
