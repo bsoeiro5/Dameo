@@ -8,6 +8,47 @@ from mcts import MCTS
 from interface import menu_principal
 from metricas import metrics
 
+# Adicionar a classe RandomAI diretamente no main.py
+class RandomAI:
+    def __init__(self):
+        self.nodes_expanded = 0
+        self.simulations_run = 0
+    
+    def get_move(self, game):
+        """Retorna um movimento aleatório válido"""
+        # Resetar contadores
+        self.nodes_expanded = 1  # Contamos como tendo expandido pelo menos um nó
+        self.simulations_run = 1
+        
+        # Obter todos os movimentos válidos
+        valid_moves = []
+        for piece in game.tabuleiro.get_all_peças(game.turn):
+            piece_moves = game.tabuleiro.get_valid_moves(piece)
+            for move, skip in piece_moves.items():
+                valid_moves.append((piece, move, skip))
+        
+        # Verificar se existem movimentos de captura
+        capture_moves = [move for move in valid_moves if move[2]]
+        
+        # Priorizar movimentos de captura se existirem
+        if capture_moves:
+            selected_move = random.choice(capture_moves)
+            return selected_move, True  # É um movimento de captura
+        elif valid_moves:
+            selected_move = random.choice(valid_moves)
+            return selected_move, False  # Não é um movimento de captura
+        else:
+            return None, False  # Não há movimentos disponíveis
+            
+    def _get_valid_moves(self, game):
+        """Método para compatibilidade com a interface do MCTS"""
+        moves = []
+        for piece in game.tabuleiro.get_all_peças(game.turn):
+            valid_moves = game.tabuleiro.get_valid_moves(piece)
+            for move, skip in valid_moves.items():
+                moves.append((piece, move, skip))
+        return moves
+
 def get_valid_moves(game):
     moves = []
     for peca in game.tabuleiro.get_all_peças(game.turn):
@@ -64,6 +105,12 @@ def jogo_principal(configuracoes):
         )
         print(f"MCTS configurado: {dificuldade} - {iterations} iterações, {simulation_depth} profundidade")
         metrics.set_algorithm_info("MCTS", dificuldade, simulation_depth)
+    elif algoritmo == "random":
+        # Configurar o algoritmo Random
+        ai = RandomAI()
+        print(f"Random AI configurado")
+        metrics.set_algorithm_info("Random", dificuldade, 0)
+        depth = 0  # Não precisa de profundidade para o algoritmo aleatório
     
     # Configurar Minimax/AlphaBeta
     depth = 0
@@ -89,8 +136,6 @@ def jogo_principal(configuracoes):
     metrics.update_piece_count(game.tabuleiro.verdes_left, game.tabuleiro.laranjas_left)
     
     clock = pygame.time.Clock()
-
-    # Substitua o loop principal no arquivo main.py com esta versão modificada:
 
     # Dentro da função jogo_principal, substitua o loop "while run:" por este:
     while run:
@@ -119,24 +164,25 @@ def jogo_principal(configuracoes):
             metrics.reset()
             metrics.set_algorithm_info(algoritmo, dificuldade, depth)
             
-            if algoritmo == "mcts":
+            if algoritmo in ["mcts", "random"]:
                 # Antes do movimento da IA
                 old_green = game.tabuleiro.verdes_left
                 old_orange = game.tabuleiro.laranjas_left
                 
                 move, is_capture = ai.get_move(game)
                 
-                # Registrar métricas do MCTS
+                # Registrar métricas
                 metrics.nodes_expanded = ai.nodes_expanded
-                metrics.simulations_run = ai.simulations_run
+                metrics.simulations_run = getattr(ai, 'simulations_run', 0)
                 metrics.moves_considered = len(ai._get_valid_moves(game))
                 metrics.evaluation_score = game.tabuleiro.heuristica()
                 
-                # Resetar contadores do MCTS para o próximo movimento
+                # Resetar contadores para o próximo movimento
                 ai.nodes_expanded = 0
-                ai.simulations_run = 0
+                if hasattr(ai, 'simulations_run'):
+                    ai.simulations_run = 0
                 
-                # Processar movimento do MCTS
+                # Processar movimento
                 if move:
                     peca, novo_pos, skip = move
                     game.tabuleiro.movimento(peca, novo_pos[0], novo_pos[1])
@@ -157,6 +203,7 @@ def jogo_principal(configuracoes):
                     print(f"Estado atual do tabuleiro antes da IA:")
                     print(f"Peças verdes: {game.tabuleiro.verdes_left}")
                     print(f"Peças laranjas: {game.tabuleiro.laranjas_left}")
+                    print(f"Turno atual: {game.turn}")
                     
                     # Antes do movimento da IA
                     old_green = game.tabuleiro.verdes_left
@@ -192,8 +239,10 @@ def jogo_principal(configuracoes):
                             from minimax.algoritmo import minimax
                             minimax.start_time = time.time()
                             
-                            score, best_board = minimax(game.tabuleiro, depth, False, game)
-                            print(f"Minimax retornou score: {score}")
+                            # CORREÇÃO AQUI: Usar True quando é turno VERDE, False quando é LARANJA
+                            is_max = game.turn == VERDE
+                            score, best_board = minimax(game.tabuleiro, depth, is_max, game)
+                            print(f"Minimax retornou score: {score}, is_max={is_max}")
                             
                             # Registrar métricas
                             from minimax.algoritmo import nos_expandidos_minimax
@@ -215,8 +264,10 @@ def jogo_principal(configuracoes):
                             from minimax.algoritmo import alfa_beta
                             alfa_beta.start_time = time.time()
                             
-                            score, best_board = alfa_beta(game.tabuleiro, depth, float('-inf'), float('inf'), False, game)
-                            print(f"Alpha-beta retornou score: {score}")
+                            # CORREÇÃO AQUI: Usar True quando é turno VERDE, False quando é LARANJA
+                            is_max = game.turn == VERDE
+                            score, best_board = alfa_beta(game.tabuleiro, depth, float('-inf'), float('inf'), is_max, game)
+                            print(f"Alpha-beta retornou score: {score}, is_max={is_max}")
                             
                             # Registrar métricas
                             from minimax.algoritmo import nos_expandidos_alphabeta
