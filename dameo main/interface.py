@@ -18,6 +18,18 @@ FUNDO = pygame.transform.scale(FUNDO, (LARGURA, ALTURA))
 fonte = pygame.font.Font(None, 50)
 fonte_subtitulo = pygame.font.Font(None, 40)
 
+def get_tamanho_numerico(tamanho_string):
+    if tamanho_string == "6x6":
+        return 6
+    elif tamanho_string == "8x8":
+        return 8
+    elif tamanho_string == "12x12":
+        return 12
+    else:
+        # Valor padrão caso a string não corresponda a nenhuma opção válida
+        print(f"Tamanho inválido: {tamanho_string}. Usando tamanho padrão 8.")
+        return 8
+
 def desenhar_botao(win, texto, cor, x, y, largura, altura, selecionado=False, fonte_especial=None):
     """Desenha um botão na tela com texto centralizado."""
     # Desenha borda mais grossa se selecionado
@@ -302,9 +314,11 @@ def menu_modo(tamanho):
 
 def iniciar_jogo(tamanho, algoritmo, dificuldade, modo):
     """Retorna as configurações selecionadas."""
-    print(f"Configurações selecionadas: Tamanho {tamanho}, Modo {modo}, Algoritmo {algoritmo}, Dificuldade {dificuldade}")
+    tamanho_numerico = get_tamanho_numerico(tamanho)
+    print(f"Configurações selecionadas: Tamanho {tamanho} ({tamanho_numerico}x{tamanho_numerico}), Modo {modo}, Algoritmo {algoritmo}, Dificuldade {dificuldade}")
     return {
-        "tamanho": tamanho, 
+        "tamanho": tamanho,
+        "tamanho_numerico": tamanho_numerico,  # Store the value, not the function
         "algoritmo": algoritmo, 
         "dificuldade": dificuldade,
         "modo": modo
