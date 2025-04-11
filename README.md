@@ -25,8 +25,11 @@ O objetivo central do jogador no “Dameo” é capturar todas as peças advers�
 ## Como fazer o download e utilizar a interface  
 #### Primeiro passo:
 Extraia o .zip da página github e descomprima o ficheiro
+Certifique-se que tem a versão do python: 3.12.8
+
 #### Segundo passo: 
 Instale `numpy` e `pygame` no diretório pelo terminal 
+Certifique-se que tem a versão do pygame: 2.6.1
 ```
 pip install numpy
 pip install pygame
