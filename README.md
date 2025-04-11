@@ -20,7 +20,7 @@ O “Dameo” foi inventado no ano 2000 pelo designer de jogos abstratos holand�
 
 O objetivo central do jogador no “Dameo” é capturar todas as peças adversárias ou imobilizar o oponente, ganhando, assim, o jogo. Não obstante, se ambos os jogadores ficarem sem movimentos ou repetirem jogadas três vezes, empatam.
 
->Para aceder à documentação completa e formalização do problema, deve por favor abrir o ficheiro [Dameo_Relatorio.docx](https://www.canva.com/design/DAGjt9kl1Eg/eydHpNkqvPy-LaXAZmEFuw/view?utm_content=DAGjt9kl1Eg&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h2601915538)
+>Para aceder à documentação completa e formalização do problema, deve por favor abrir o ficheiro [Dameo_Relatorio.docx](https://www.canva.com/design/DAGj4WibOJA/8QEdnWDrN7lQNhZXu5mRaA/view?utm_content=DAGj4WibOJA&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hba45ba0366)
 
 ## Como fazer o download e utilizar a interface  
 #### Primeiro passo:
