@@ -44,7 +44,7 @@ cd (diretório da pasta)
 #### Quarto passo 
 Corra o programa 
 ```
-python3 dameo.py
+python3 main.py
 ```
 *****
 *****
