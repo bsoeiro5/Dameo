@@ -90,7 +90,7 @@ Clique em **"Continuar"** após a seleção.
 
 Clique em **"Continuar"** para iniciar o jogo.
 
-### Controles de Navegação
+### Controlos de Navegação
 
 - **Botão Voltar**: Na parte inferior de cada tela do menu, há um botão "Voltar" para voltar ao menu anterior  
 - **Tecla ESC**: Pressione *Escape* para voltar ao menu anterior  
